@@ -15,7 +15,7 @@ The declared minimums are WordPress 7.0 and PHP 7.4. CI runs the integration tes
 - WordPress integration test (`wp eval-file tests/integration.php`): 63 checks pass
 - Plugin Check on the extracted ZIP: no errors, no warnings
 
-The integration check covers registration, dynamic rendering, absence of frontend scripts, settings validation, stable IDs, default and explicit contacts, malformed stored options and block attributes, phone normalization, contact default messages, per-block and per-post overrides, multiple blocks, persistence, URL encoding, output escaping, new-tab safety, decorative SVG markup, native style and typography supports, the Outline style class, post meta registration, empty settings, and uninstall behavior (option and per-post messages).
+The integration check covers registration, dynamic rendering, absence of frontend scripts, settings validation, stable IDs, default and explicit contacts, malformed stored options and block attributes, phone normalization, contact default messages, per-block and per-post overrides, multiple blocks, persistence, URL encoding, output escaping, new-tab safety, a decorative icon with no per-button SVG and a markup size ceiling, native style and typography supports, the Outline style class, post meta registration, empty settings, and uninstall behavior (option and per-post messages).
 
 ## Continuous integration
 

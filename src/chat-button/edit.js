@@ -7,7 +7,6 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { RawHTML } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
@@ -24,7 +23,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const data = window.mintchatEditorData || {
 		recipients: [],
 		defaultId: '',
-		icon: '',
 	};
 	const missing =
 		recipientId &&
@@ -129,10 +127,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			</InspectorControls>
 			<div className="wp-block-button">
 				<div { ...blockProps } title={ resolvedMessage }>
-					{ showIcon && data.icon && (
-						<RawHTML className="mintchat-button__icon">
-							{ data.icon }
-						</RawHTML>
+					{ showIcon && (
+						<span className="mintchat-button__icon" aria-hidden />
 					) }
 					<span className="mintchat-button__label">
 						{ buttonText.trim()

@@ -8,4 +8,5 @@
 - Fill, Outline and Theme block styles; full color, typography (including letter spacing and uppercase), spacing, border and shadow controls.
 - The button can sit inside the core Buttons block.
 - Dynamic PHP rendering, zero frontend JavaScript, no cookies or tracking.
+- The icon is a single CSS mask in the stylesheet, so each button adds about 500 bytes of markup.
 - Validation, escaping, accessibility details, integration tests, CI with Plugin Check and a verified production ZIP.

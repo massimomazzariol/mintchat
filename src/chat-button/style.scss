@@ -1,3 +1,5 @@
+@use "icon";
+
 /*
  * Base sizing (padding, border-radius, height, text-align, ...) is
  * intentionally left to core's `.wp-block-button__link` rule so this
@@ -53,37 +55,30 @@
 
 /* Theme: nothing to add, the theme's button styles apply as they are. */
 
-.wp-block-mintchat-chat-button.aligncenter {
-	display: flex;
-	width: fit-content;
-	margin-inline: auto;
-}
-
+.wp-block-mintchat-chat-button.alignleft,
+.wp-block-mintchat-chat-button.aligncenter,
 .wp-block-mintchat-chat-button.alignright {
 	display: flex;
 	float: none;
 	width: fit-content;
-	margin-left: auto;
-	margin-right: 0;
+	margin-inline: auto;
 }
 
 .wp-block-mintchat-chat-button.alignleft {
-	display: flex;
-	float: none;
-	width: fit-content;
 	margin-left: 0;
-	margin-right: auto;
 }
 
+.wp-block-mintchat-chat-button.alignright {
+	margin-right: 0;
+}
+
+/* One glyph for all buttons, inlined once here, painted in the text color. */
 .mintchat-button__icon {
-	display: inline-flex;
 	flex: 0 0 auto;
-}
-
-.mintchat-button__icon svg {
 	width: 1.25em;
 	height: 1.25em;
-	fill: currentcolor;
+	background-color: currentcolor;
+	mask: icon.$mintchat-icon center / contain no-repeat;
 }
 
 .mintchat-button__label {

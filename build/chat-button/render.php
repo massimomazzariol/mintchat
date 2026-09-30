@@ -45,7 +45,7 @@ $mintchat_new_tab = ! isset( $attributes['openInNewTab'] ) || true === $attribut
 <div class="wp-block-button"><a <?php echo get_block_wrapper_attributes( array( 'class' => 'wp-block-button__link wp-element-button' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core escapes wrapper attributes. ?> href="<?php echo esc_url( \Mintchat\message_url( $mintchat_recipient['number'], $mintchat_message ) ); ?>"
 	<?php if ( $mintchat_new_tab ) : ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>>
 	<?php if ( ! isset( $attributes['showIcon'] ) || true === $attributes['showIcon'] ) : ?>
-		<span class="mintchat-button__icon"><?php echo \Mintchat\icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sanitized by icon(). ?></span>
+		<span class="mintchat-button__icon" aria-hidden="true"></span>
 	<?php endif; ?>
 	<span class="mintchat-button__label"><?php echo esc_html( $mintchat_text ); ?></span>
 	<?php if ( $mintchat_new_tab ) : ?>

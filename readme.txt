@@ -27,7 +27,7 @@ For example, a hotel can set up Reception, Restaurant and Transfers, and point e
 * Three styles: Fill (WhatsApp green), Outline and Theme (your theme's button look)
 * Full design controls: colors, typography including letter spacing and uppercase, spacing, border, shadow
 * Fits inside the core Buttons block, next to your other buttons
-* Zero frontend JavaScript, one tiny local stylesheet
+* Zero frontend JavaScript and zero requests: a 1 KB gzipped stylesheet, inlined by WordPress (block themes load it only where the block is used), and about 500 bytes of markup per button
 * No cookies, browser storage, analytics, telemetry or tracking
 * No account, chat SDK or WhatsApp Business API needed
 

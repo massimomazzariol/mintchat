@@ -176,8 +176,8 @@ try {
 		);
 		$mintchat_assert( false === strpos( $html, '<script>' ) && false !== strpos( $html, '&lt;script&gt;' ), 'Visible label is escaped' );
 		$mintchat_assert( false !== strpos( $html, 'target="_blank" rel="noopener noreferrer"' ) && false !== strpos( $html, 'wp-element-button' ), 'Button uses native class and new tab includes safe rel' );
-		$mintchat_assert( false !== strpos( $html, 'aria-hidden="true"' ) && false !== strpos( $html, 'focusable="false"' ), 'Core WhatsApp SVG is decorative and not focusable' );
-		$mintchat_assert( false !== strpos( $html, '<svg' ) && false === strpos( $html, '<img' ), 'Local Core SVG, no image request' );
+		$mintchat_assert( false !== strpos( $html, '<span class="mintchat-button__icon" aria-hidden="true"></span>' ), 'Icon is an empty decorative span painted by the stylesheet' );
+		$mintchat_assert( false === strpos( $html, '<svg' ) && false === strpos( $html, '<img' ) && strlen( $html ) < 900, 'No per-button SVG or image: the button markup stays small' );
 		$html = $mintchat_render(
 			array(
 				'showIcon'     => false,
@@ -185,7 +185,7 @@ try {
 				'buttonText'   => '',
 			)
 		);
-		$mintchat_assert( false === strpos( $html, '<svg' ) && false === strpos( $html, 'target=' ), 'Icon and new-tab toggles are honored' );
+		$mintchat_assert( false === strpos( $html, 'mintchat-button__icon' ) && false === strpos( $html, 'target=' ), 'Icon and new-tab toggles are honored' );
 		$mintchat_assert( false !== strpos( $html, esc_html__( 'Send WhatsApp message', 'mintchat' ) ), 'Empty label falls back to the default visible text' );
 		$html = $mintchat_render(
 			array(

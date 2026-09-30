@@ -91,36 +91,3 @@ function normalize_phone( $number ) {
 function message_url( $number, $message ) {
 	return 'https://wa.me/' . $number . ( '' === $message ? '' : '?text=' . rawurlencode( $message ) );
 }
-
-/** Reuse Core's decorative service glyph; omit it if the API is unavailable. */
-function icon() {
-	if ( ! function_exists( 'block_core_social_link_get_icon' ) ) {
-		return '';
-	}
-	$processor = new \WP_HTML_Tag_Processor( block_core_social_link_get_icon( 'whatsapp' ) );
-	if ( ! $processor->next_tag( 'svg' ) ) {
-		return '';
-	}
-	$processor->set_attribute( 'aria-hidden', 'true' );
-	$processor->set_attribute( 'focusable', 'false' );
-	return wp_kses( $processor->get_updated_html(), icon_allowed_html() );
-}
-
-/** Only allow the SVG elements and attributes needed by the Core glyph. */
-function icon_allowed_html() {
-	return array(
-		'svg'  => array(
-			'xmlns'       => true,
-			'viewbox'     => true,
-			'width'       => true,
-			'height'      => true,
-			'fill'        => true,
-			'aria-hidden' => true,
-			'focusable'   => true,
-		),
-		'path' => array(
-			'd'    => true,
-			'fill' => true,
-		),
-	);
-}

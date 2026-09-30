@@ -45,7 +45,6 @@ function editor_data() {
 			$settings['recipients']
 		),
 		'defaultId'  => $settings['default_recipient_id'],
-		'icon'       => icon(),
 	);
 	wp_add_inline_script(
 		'mintchat-chat-button-editor-script',
