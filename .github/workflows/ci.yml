@@ -1,0 +1,48 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:js
+      - run: npm run lint:css
+      - run: npm run build
+      - run: git diff --exit-code -- build
+      - run: npm run plugin-zip
+      - name: PHP syntax
+        run: find . -path ./node_modules -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Extract release ZIP
+        run: unzip -q mintchat.zip -d dist
+      - name: Plugin Check on the release ZIP
+        uses: WordPress/plugin-check-action@10857da14b6c2246d15402b3e69f777edcf8c12e # v1.1.9
+        with:
+          build-dir: dist/mintchat
+          slug: mintchat
+
+  integration:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.4']
+    env:
+      WP_ENV_PHP_VERSION: ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Start WordPress
+        run: npx -y @wordpress/env@11.16.0 start
+      - name: Activate Mintchat
+        run: npx -y @wordpress/env@11.16.0 run cli wp plugin activate mintchat
+      - name: Integration tests
+        run: npx -y @wordpress/env@11.16.0 run cli wp eval-file wp-content/plugins/mintchat/tests/integration.php

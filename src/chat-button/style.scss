@@ -1,0 +1,104 @@
+/*
+ * Base sizing (padding, border-radius, height, text-align, ...) is
+ * intentionally left to core's `.wp-block-button__link` rule so this
+ * button matches native Gutenberg buttons pixel-for-pixel. Only the
+ * icon+label row and the three block styles are added here. Block color,
+ * border and typography settings always win over these defaults.
+ */
+.wp-block-mintchat-chat-button.wp-element-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.55em;
+	max-width: 100%;
+	font-family: inherit;
+}
+
+:where(.wp-block-mintchat-chat-button:hover) {
+	text-decoration: underline;
+}
+
+.wp-block-mintchat-chat-button:focus-visible {
+	outline: 3px solid currentcolor;
+	outline-offset: 4px;
+}
+
+/* Fill (default): WhatsApp green. */
+.wp-block-mintchat-chat-button:not(.is-style-outline):not(.is-style-theme) {
+	border: 0 solid transparent;
+	font-size: 1rem;
+	font-weight: 600;
+
+	&:not(.has-background) {
+		background-color: #25d366;
+	}
+
+	&:not(.has-text-color) {
+		color: #111b21;
+	}
+}
+
+/* Outline: transparent, bordered in the text color (like Core). */
+.wp-block-mintchat-chat-button.is-style-outline {
+	border: 2px solid;
+
+	&:not(.has-background) {
+		background-color: transparent;
+	}
+
+	&:not(.has-text-color) {
+		color: currentcolor;
+	}
+}
+
+/* Theme: nothing to add, the theme's button styles apply as they are. */
+
+.wp-block-mintchat-chat-button.aligncenter {
+	display: flex;
+	width: fit-content;
+	margin-inline: auto;
+}
+
+.wp-block-mintchat-chat-button.alignright {
+	display: flex;
+	float: none;
+	width: fit-content;
+	margin-left: auto;
+	margin-right: 0;
+}
+
+.wp-block-mintchat-chat-button.alignleft {
+	display: flex;
+	float: none;
+	width: fit-content;
+	margin-left: 0;
+	margin-right: auto;
+}
+
+.mintchat-button__icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+}
+
+.mintchat-button__icon svg {
+	width: 1.25em;
+	height: 1.25em;
+	fill: currentcolor;
+}
+
+.mintchat-button__label {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.wp-block-mintchat-chat-button .screen-reader-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}

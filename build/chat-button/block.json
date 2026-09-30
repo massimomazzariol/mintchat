@@ -1,0 +1,102 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "mintchat/chat-button",
+  "version": "1.0.0",
+  "title": "Mintchat: Click to Chat",
+  "category": "widgets",
+  "icon": "format-chat",
+  "description": "Lightweight WhatsApp click-to-chat button with centrally managed contacts.",
+  "keywords": [
+    "whatsapp",
+    "chat",
+    "contact",
+    "button"
+  ],
+  "textdomain": "mintchat",
+  "styles": [
+    {
+      "name": "fill",
+      "label": "Fill",
+      "isDefault": true
+    },
+    {
+      "name": "outline",
+      "label": "Outline"
+    },
+    {
+      "name": "theme",
+      "label": "Theme"
+    }
+  ],
+  "attributes": {
+    "recipientId": {
+      "type": "string",
+      "default": ""
+    },
+    "message": {
+      "type": "string",
+      "default": ""
+    },
+    "useDefaultMessage": {
+      "type": "boolean",
+      "default": false
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Send WhatsApp message"
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "openInNewTab": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "color": {
+      "text": true,
+      "background": true,
+      "__experimentalDefaultControls": {
+        "text": true,
+        "background": true
+      }
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "__experimentalFontFamily": true,
+      "__experimentalFontWeight": true,
+      "__experimentalFontStyle": true,
+      "__experimentalLetterSpacing": true,
+      "__experimentalTextTransform": true,
+      "__experimentalTextDecoration": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "width": true,
+      "style": true,
+      "radius": true,
+      "__experimentalDefaultControls": {
+        "radius": true
+      }
+    },
+    "shadow": true
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

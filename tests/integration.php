@@ -1,0 +1,312 @@
+<?php
+/** Run with: wp eval-file wp-content/plugins/mintchat/tests/integration.php
+ * In WordPress Studio, prefix the command with studio.
+ * Uses generated fictitious numbers and restores the option in finally.
+ *
+ * @package Mintchat
+ */
+
+defined( 'ABSPATH' ) || exit;
+if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+	exit;
+}
+
+$mintchat_old       = get_option( 'mintchat_settings', null );
+$mintchat_passes    = 0;
+$mintchat_test_post = 0;
+$mintchat_assert    = static function ( $condition, $description ) use ( &$mintchat_passes ) {
+	if ( ! $condition ) {
+		throw new \RuntimeException( esc_html( $description ) );
+	}
+	++$mintchat_passes;
+	WP_CLI::log( 'PASS: ' . $description );
+};
+$mintchat_render    = static function ( $attributes ) {
+	return render_block(
+		array(
+			'blockName'    => 'mintchat/chat-button',
+			'attrs'        => $attributes,
+			'innerBlocks'  => array(),
+			'innerHTML'    => '',
+			'innerContent' => array(),
+		)
+	);
+};
+
+try {
+	( static function () use ( $mintchat_assert, $mintchat_render, &$mintchat_passes, &$mintchat_test_post ) {
+		// Parse all shipped PHP using the running PHP engine, without executing it.
+		$files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( dirname( __DIR__ ) ) );
+		foreach ( $files as $file ) {
+			if ( 'php' === $file->getExtension() && false === strpos( $file->getPathname(), 'node_modules' ) && false === strpos( $file->getPathname(), 'vendor' ) ) {
+				token_get_all( file_get_contents( $file->getPathname() ), TOKEN_PARSE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local PHP syntax test; no URL or network access.
+			}
+		}
+		$mintchat_assert( true, 'All plugin PHP files pass syntax validation' );
+		$mintchat_assert( WP_Block_Type_Registry::get_instance()->is_registered( 'mintchat/chat-button' ), 'Block is registered' );
+		$type = WP_Block_Type_Registry::get_instance()->get_registered( 'mintchat/chat-button' );
+		$mintchat_assert( $type->is_dynamic() && 3 === $type->api_version, 'Dynamic Block API v3' );
+		$mintchat_assert( empty( $type->view_script_handles ) && empty( $type->script_handles ) && empty( $type->view_script_module_ids ), 'No frontend JavaScript registered' );
+
+		update_option(
+			'mintchat_settings',
+			array(
+				'recipients'           => array(),
+				'default_recipient_id' => '',
+			)
+		);
+		$number_a = '1' . str_repeat( '2', 10 );
+		$number_b = '1' . str_repeat( '3', 10 );
+		$number_c = '1' . str_repeat( '4', 10 );
+		$input    = array(
+			'recipients'           => array(
+				'new-a' => array(
+					'label'           => 'Recipient A',
+					'number'          => '+' . $number_a,
+					'default_message' => 'Default A',
+				),
+				'new-b' => array(
+					'label'  => 'Recipient B',
+					'number' => $number_b,
+				),
+			),
+			'default_recipient_id' => 'new-a',
+		);
+		$settings = \Mintchat\sanitize_settings( $input );
+		$mintchat_assert( \Mintchat\sanitize_settings( $settings ) === $settings, 'Sanitization is idempotent, including UUIDs and default' );
+		update_option( 'mintchat_settings', $settings );
+		$a = $settings['recipients'][0]['id'];
+		$b = $settings['recipients'][1]['id'];
+		$mintchat_assert( wp_is_uuid( $a ) && wp_is_uuid( $b ) && $a !== $b, 'New recipients have distinct stable UUIDs' );
+		$mintchat_assert( \Mintchat\recipient( '' )['number'] === $number_a, 'Empty recipient ID uses default A' );
+		$mintchat_assert( false !== strpos( $mintchat_render( array() ), 'https://wa.me/' . $number_a ), 'Default block points to A' );
+		$mintchat_assert( false !== strpos( $mintchat_render( array( 'useDefaultMessage' => true ) ), 'Default%20A' ), 'Block can use the contact default message' );
+		$mintchat_assert(
+			false !== strpos(
+				$mintchat_render(
+					array(
+						'useDefaultMessage' => false,
+						'message'           => 'Override',
+					)
+				),
+				'Override'
+			),
+			'Block message override is honored'
+		);
+		$mintchat_assert( false !== strpos( $mintchat_render( array( 'recipientId' => $b ) ), 'https://wa.me/' . $number_b ), 'Explicit block points to B' );
+		$mintchat_assert( substr_count( $mintchat_render( array( 'recipientId' => $a ) ) . $mintchat_render( array( 'recipientId' => $b ) ), 'wp-block-mintchat-chat-button' ) === 2, 'Multiple blocks render independently' );
+
+		$saved                 = serialize_block(
+			array(
+				'blockName'    => 'mintchat/chat-button',
+				'attrs'        => array(
+					'recipientId' => $a,
+					'message'     => 'Test explicit recipient',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
+		$mintchat_test_post = wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'draft',
+				'post_title'   => 'Mintchat Integration Test',
+				'post_content' => wp_slash( $saved ),
+			),
+			true
+		);
+		$mintchat_assert( ! is_wp_error( $mintchat_test_post ) && $mintchat_test_post > 0, 'Created isolated draft for persistence test' );
+		$settings['recipients'][0]['number'] = $number_c;
+		update_option( 'mintchat_settings', $settings );
+		$persisted = get_post_field( 'post_content', $mintchat_test_post );
+		$mintchat_assert( $persisted === $saved && false !== strpos( do_blocks( $persisted ), 'https://wa.me/' . $number_c ), 'Stored draft stays unchanged while rendered number updates' );
+		$mintchat_assert( false !== strpos( do_blocks( $saved ), 'https://wa.me/' . $number_c ), 'Saved content uses global number change without resaving' );
+		$mintchat_assert( false === strpos( $saved, $number_a ) && false === strpos( $saved, 'wa.me' ), 'Saved block contains no phone number or URL' );
+		$settings['default_recipient_id'] = $b;
+		update_option( 'mintchat_settings', $settings );
+		$mintchat_assert( false !== strpos( $mintchat_render( array() ), 'https://wa.me/' . $number_b ), 'Default change redirects only intentional default block' );
+		$mintchat_assert( false !== strpos( do_blocks( $saved ), 'https://wa.me/' . $number_c ), 'Explicit A does not follow default change' );
+
+		$reordered = array(
+			'recipients'           => array(
+				$b => $settings['recipients'][1],
+				$a => $settings['recipients'][0],
+			),
+			'default_recipient_id' => $b,
+		);
+		$reordered = \Mintchat\sanitize_settings( $reordered );
+		update_option( 'mintchat_settings', $reordered );
+		$mintchat_assert( $reordered['recipients'][0]['id'] === $b && \Mintchat\recipient( $a )['number'] === $number_c, 'Reordering preserves identities' );
+		$removed = \Mintchat\sanitize_settings(
+			array(
+				'recipients'           => array( $a => $settings['recipients'][0] ),
+				'default_recipient_id' => $b,
+			)
+		);
+		update_option( 'mintchat_settings', $removed );
+		$mintchat_assert( $a === $removed['default_recipient_id'], 'Deleted default becomes first remaining valid recipient' );
+		$mintchat_assert( '' === $mintchat_render( array( 'recipientId' => $b ) ), 'Deleted explicit recipient renders no CTA and never falls back' );
+		$mintchat_assert( '' === $mintchat_render( array( 'recipientId' => 'unknown' ) ), 'Unknown explicit ID renders nothing' );
+
+		$message = "Ciao! È disponibile?\nà è é ì ò ù 'apostrofi' \"Alpha & Beta\" #2026 % 😊 🏺";
+		$url     = \Mintchat\message_url( $number_c, $message );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query );
+		$mintchat_assert( $query['text'] === $message, 'URL message round-trip preserves punctuation, accents, emoji and newline exactly' );
+		$mintchat_assert( \Mintchat\message_url( $number_c, '' ) === 'https://wa.me/' . $number_c, 'Empty message omits query parameter' );
+		foreach (
+			array(
+				'+39 333 123 4567'   => '393331234567',
+				'+49 (170) 123-4567' => '491701234567',
+			) as $formatted => $normalized
+		) {
+			$mintchat_assert( \Mintchat\normalize_phone( $formatted ) === $normalized, 'Supported international formatting normalizes predictably' );
+		}
+		foreach ( array( '', '0039 333 123 4567', '++393331234567', '+39abc3331234567', '+393331234567 ext 2', '123456', str_repeat( '1', 16 ), array() ) as $invalid ) {
+			$mintchat_assert( '' === \Mintchat\normalize_phone( $invalid ), 'Malformed phone input is rejected' );
+		}
+		$html = $mintchat_render(
+			array(
+				'recipientId' => $a,
+				'message'     => $message,
+				'buttonText'  => '<script>alert(1)</script> Visible',
+				'showIcon'    => true,
+			)
+		);
+		$mintchat_assert( false === strpos( $html, '<script>' ) && false !== strpos( $html, '&lt;script&gt;' ), 'Visible label is escaped' );
+		$mintchat_assert( false !== strpos( $html, 'target="_blank" rel="noopener noreferrer"' ) && false !== strpos( $html, 'wp-element-button' ), 'Button uses native class and new tab includes safe rel' );
+		$mintchat_assert( false !== strpos( $html, 'aria-hidden="true"' ) && false !== strpos( $html, 'focusable="false"' ), 'Core WhatsApp SVG is decorative and not focusable' );
+		$mintchat_assert( false !== strpos( $html, '<svg' ) && false === strpos( $html, '<img' ), 'Local Core SVG, no image request' );
+		$html = $mintchat_render(
+			array(
+				'showIcon'     => false,
+				'openInNewTab' => false,
+				'buttonText'   => '',
+			)
+		);
+		$mintchat_assert( false === strpos( $html, '<svg' ) && false === strpos( $html, 'target=' ), 'Icon and new-tab toggles are honored' );
+		$mintchat_assert( false !== strpos( $html, esc_html__( 'Send WhatsApp message', 'mintchat' ) ), 'Empty label falls back to the default visible text' );
+		$html = $mintchat_render(
+			array(
+				'recipientId'       => $a,
+				'message'           => array( '<script>' ),
+				'buttonText'        => array( '<script>' ),
+				'useDefaultMessage' => 'true',
+				'showIcon'          => 'true',
+				'openInNewTab'      => 'true',
+			)
+		);
+		$mintchat_assert( false !== strpos( $html, 'https://wa.me/' . $number_c ) && false === strpos( $html, '<script>' ), 'Unexpected block attribute types fail safely without changing the recipient' );
+		$mintchat_assert( '' === $mintchat_render( array( 'recipientId' => array( $a ) ) ), 'Malformed contact reference never falls back to the default' );
+		$html = $mintchat_render(
+			array(
+				'align' => 'center',
+				'style' => array(
+					'color'      => array(
+						'background' => '#123456',
+						'text'       => '#ffffff',
+					),
+					'spacing'    => array( 'padding' => array( 'top' => '20px' ) ),
+					'border'     => array( 'radius' => '12px' ),
+					'typography' => array(
+						'fontSize'      => '24px',
+						'fontWeight'    => '700',
+						'letterSpacing' => '0.12em',
+						'textTransform' => 'uppercase',
+					),
+				),
+			)
+		);
+		$mintchat_assert( false !== strpos( $html, 'background-color:#123456' ) && false !== strpos( $html, 'padding-top:20px' ) && false !== strpos( $html, 'border-radius:12px' ) && false !== strpos( $html, 'font-size:24px' ) && false !== strpos( $html, 'aligncenter' ), 'Native style supports and positioning reach frontend markup' );
+		$mintchat_assert( false !== strpos( $html, 'letter-spacing:0.12em' ) && false !== strpos( $html, 'text-transform:uppercase' ), 'Letter spacing and text transform reach frontend markup' );
+		$mintchat_assert( false !== strpos( $mintchat_render( array( 'className' => 'is-style-outline' ) ), 'is-style-outline' ), 'Block style class reaches frontend markup' );
+		$mintchat_assert( registered_meta_key_exists( 'post', 'mintchat_post_message' ), 'Per-post message meta is registered for every post type' );
+
+		foreach ( array( '00' . $number_a, '12', str_repeat( '1', 16 ), '<script>' ) as $invalid ) {
+			$mintchat_assert(
+				\Mintchat\sanitize_settings(
+					array(
+						'recipients' => array(
+							$a => array(
+								'label'  => 'A',
+								'number' => $invalid,
+							),
+						),
+					)
+				) === $removed,
+				'Invalid number preserves prior option atomically'
+			);
+		}
+		$mintchat_assert(
+			\Mintchat\sanitize_settings(
+				array(
+					'recipients' => array(
+						array(
+							'label'  => array(),
+							'number' => $number_a,
+						),
+					),
+				)
+			) === $removed,
+			'Malformed input preserves prior option'
+		);
+		$mintchat_assert( \Mintchat\sanitize_settings( array( 'recipients' => array( $removed['recipients'][0], $removed['recipients'][0] ) ) ) === $removed, 'Duplicate UUIDs are rejected atomically' );
+		foreach (
+			array(
+				null,
+				false,
+				'broken',
+				array( 'recipients' => 'broken' ),
+				array( 'recipients' => array( array( 'id' => $a ) ) ),
+				array( 'recipients' => array( $removed['recipients'][0], $removed['recipients'][0] ) ),
+			) as $malformed
+		) {
+			$filter = static function () use ( $malformed ) {
+				return $malformed;
+			};
+			add_filter( 'option_mintchat_settings', $filter );
+			$mintchat_assert(
+				\Mintchat\settings() === array(
+					'recipients'           => array(),
+					'default_recipient_id' => '',
+				),
+				'Malformed stored option fails closed without warnings'
+			);
+			remove_filter( 'option_mintchat_settings', $filter );
+		}
+		$invalid_default                         = $removed;
+		$invalid_default['default_recipient_id'] = wp_generate_uuid4();
+		$filter                                  = static function () use ( $invalid_default ) {
+			return $invalid_default;
+		};
+		add_filter( 'option_mintchat_settings', $filter );
+		$mintchat_assert( '' === \Mintchat\settings()['default_recipient_id'], 'Malformed stored default never reroutes to another contact' );
+		remove_filter( 'option_mintchat_settings', $filter );
+		$empty = \Mintchat\sanitize_settings( array( 'recipients' => array( '_empty' => '1' ) ) );
+		update_option( 'mintchat_settings', $empty );
+		$mintchat_assert( '' === $empty['default_recipient_id'] && '' === $mintchat_render( array() ), 'Removing all recipients clears default and hides CTA' );
+		if ( ! is_multisite() ) {
+			if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+				define( 'WP_UNINSTALL_PLUGIN', 'mintchat/mintchat.php' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Core-required uninstall guard, defined only in this CLI test.
+			}
+			update_post_meta( $mintchat_test_post, 'mintchat_post_message', 'Uninstall probe' );
+			require dirname( __DIR__ ) . '/uninstall.php';
+			$mintchat_assert( null === get_option( 'mintchat_settings', null ), 'Uninstall deletes the Mintchat option' );
+			$mintchat_assert( '' === get_post_meta( $mintchat_test_post, 'mintchat_post_message', true ), 'Uninstall deletes per-post messages' );
+			$mintchat_assert( get_post_field( 'post_content', $mintchat_test_post ) === $saved, 'Uninstall leaves Gutenberg content untouched' );
+		}
+		WP_CLI::success( $mintchat_passes . ' integration checks passed on WordPress ' . get_bloginfo( 'version' ) . ' / PHP ' . PHP_VERSION );
+	} )();
+
+	// Restore even when a check fails.
+} finally {
+	if ( is_int( $mintchat_test_post ) && $mintchat_test_post > 0 ) {
+		wp_delete_post( $mintchat_test_post, true );
+	}
+	if ( null === $mintchat_old ) {
+		delete_option( 'mintchat_settings' );
+	} else {
+		update_option( 'mintchat_settings', $mintchat_old );
+	}
+}
