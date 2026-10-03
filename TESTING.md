@@ -25,6 +25,16 @@ The integration check covers registration, dynamic rendering, absence of fronten
 - Plugin Check on the extracted release ZIP;
 - the integration tests on PHP 7.4 and 8.4.
 
+## MCP end-to-end check
+
+Done with the official WordPress MCP Adapter 0.7.0 on WordPress 7.1.2, speaking MCP (JSON-RPC over the adapter's HTTP transport, protocol 2025-06-18) as a logged-in administrator:
+
+- `initialize` returns the "MCP Adapter Default Server" and a session ID.
+- `tools/list` returns the adapter's discover, get-info and execute tools.
+- `mcp-adapter-discover-abilities` lists `mintchat/list-contacts` and `mintchat/add-chat-button`.
+- `mintchat/list-contacts` through `mcp-adapter-execute-ability` returns IDs, names and the default flag, with no phone numbers.
+- `mintchat/add-chat-button` adds an outline button with a custom label and message to a draft page; the page preview renders it with the right `wa.me` link.
+
 ## Browser checks
 
 Done in the block editor and on the frontend with:
