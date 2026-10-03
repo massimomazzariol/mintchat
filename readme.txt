@@ -30,6 +30,7 @@ For example, a hotel can set up Reception, Restaurant and Transfers, and point e
 * Zero frontend JavaScript and zero requests: a 1 KB gzipped stylesheet, inlined by WordPress (block themes load it only where the block is used), and about 500 bytes of markup per button
 * No cookies, browser storage, analytics, telemetry or tracking
 * No account, chat SDK or WhatsApp Business API needed
+* Ready for AI agents: list contacts and add buttons through the WordPress Abilities API (REST and MCP)
 
 Mintchat is a contact button, not a live chat. It does not add popups, chatbots, CRM features, automated messages or conversation analytics.
 
@@ -72,6 +73,10 @@ Choose the Theme style to reuse your theme's button design, or Outline, or keep 
 
 Buttons assigned to that contact show nothing, so a visitor is never routed to the wrong person. Buttons using the default contact follow the current default.
 
+= Can AI agents use Mintchat? =
+
+Yes. Mintchat registers two abilities on the WordPress Abilities API: mintchat/list-contacts (read-only) and mintchat/add-chat-button. Agents reach them through the REST API or an MCP server such as the WordPress MCP Adapter, with the permissions of the logged-in user. Phone numbers are never returned.
+
 = What is removed on uninstall? =
 
 The Mintchat settings and the per-page messages. The content of your posts is left untouched.
@@ -86,4 +91,4 @@ The Mintchat settings and the per-page messages. The content of your posts is le
 == Changelog ==
 
 = 1.0.0 =
-* First release: centrally managed WhatsApp contacts, per-button contact and message, per-page message override, Fill, Outline and Theme styles, full design controls, support inside the Buttons block, zero frontend JavaScript and no cookies.
+* First release: centrally managed WhatsApp contacts, per-button contact and message, per-page message override, Fill, Outline and Theme styles, full design controls, support inside the Buttons block, zero frontend JavaScript and no cookies, abilities for AI agents (Abilities API).

@@ -41,6 +41,7 @@ The button is a plain `https://wa.me/` link. Nothing loads, runs or gets stored 
 - **Three styles.** Fill (WhatsApp green), Outline and Theme (your theme's own button look).
 - **All the native design tools.** Color, typography with letter spacing and uppercase, spacing, border, radius, shadow and alignment.
 - **Safe by default.** Missing or deleted contacts hide the button instead of linking to a wrong number. Output is escaped, new tabs get `rel="noopener noreferrer"`.
+- **Ready for AI agents.** Two abilities on the WordPress Abilities API: `mintchat/list-contacts` and `mintchat/add-chat-button`. See [AI agents](#ai-agents).
 - **Clean uninstall.** Removes its option and the per-page messages, leaves your content untouched.
 
 ## How light is it
@@ -54,7 +55,7 @@ Measured on WordPress 7.1 with Twenty Twenty-Five:
 | Stylesheet, icon included | 2.6 KB, 1.1 KB gzipped, once per page |
 | Markup per button | about 500 bytes, 0.3 KB gzipped |
 | Cookies, local storage, external calls | none |
-| Release ZIP | 23 KB, 16 files, 53 KB unpacked |
+| Release ZIP | 25 KB, 17 files, 61 KB unpacked |
 
 The WhatsApp glyph (from WordPress Core social icons) lives once in the stylesheet as a CSS mask and takes the button's text color, so ten buttons cost the same icon bytes as one.
 
@@ -69,6 +70,17 @@ Mintchat is a contact button, not a live chat: no popups, chatbots, CRM, automat
 1. Add contacts under **Settings > Mintchat** and choose the default.
 2. Insert **Mintchat: Click to Chat**, on its own or inside a Buttons block.
 3. Pick the contact, use its default message or write one, choose a style.
+
+## AI agents
+
+Mintchat registers its actions on the Abilities API introduced in WordPress 6.9, so AI agents and other clients can use it through the REST API (`/wp-json/wp-abilities/v1/`) or MCP with the official [WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter).
+
+| Ability | What it does | Permission |
+| --- | --- | --- |
+| `mintchat/list-contacts` | Lists contact IDs and names, and which one is the default. Read-only. | `edit_posts` |
+| `mintchat/add-chat-button` | Adds a chat button block at the start or end of a post, with contact, label, message and style. | `edit_post` on that post |
+
+Phone numbers never leave the server: the list returns IDs and names only, and the saved block stores the contact ID, not the number. Example prompt for an agent: *"Add a WhatsApp button for Reception at the end of the Contact page, outline style, message 'Hello, I would like to book a table'."*
 
 ## Development
 

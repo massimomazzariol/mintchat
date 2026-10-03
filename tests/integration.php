@@ -129,6 +129,49 @@ try {
 		$mintchat_assert( false !== strpos( $mintchat_render( array() ), 'https://wa.me/' . $number_b ), 'Default change redirects only intentional default block' );
 		$mintchat_assert( false !== strpos( do_blocks( $saved ), 'https://wa.me/' . $number_c ), 'Explicit A does not follow default change' );
 
+		// Abilities API.
+		$mintchat_assert( wp_has_ability_category( 'mintchat' ) && wp_has_ability( 'mintchat/list-contacts' ) && wp_has_ability( 'mintchat/add-chat-button' ), 'Ability category and both abilities are registered' );
+		$mintchat_assert( wp_get_ability( 'mintchat/list-contacts' )->get_meta_item( 'show_in_rest' ) === true && array( 'public' => true ) === wp_get_ability( 'mintchat/add-chat-button' )->get_meta_item( 'mcp' ), 'Abilities are public for REST and the MCP Adapter' );
+		$previous_user = get_current_user_id();
+		wp_set_current_user( 0 );
+		$mintchat_assert( is_wp_error( wp_get_ability( 'mintchat/list-contacts' )->execute() ), 'Anonymous users cannot list contacts' );
+		$mintchat_assert( is_wp_error( wp_get_ability( 'mintchat/add-chat-button' )->execute( array( 'post_id' => $mintchat_test_post ) ) ), 'Anonymous users cannot add buttons' );
+		$admins = get_users(
+			array(
+				'role'   => 'administrator',
+				'number' => 1,
+				'fields' => 'ID',
+			)
+		);
+		wp_set_current_user( (int) $admins[0] );
+		$contacts = wp_get_ability( 'mintchat/list-contacts' )->execute();
+		$mintchat_assert( is_array( $contacts ) && 2 === count( $contacts ), 'list-contacts returns both contacts' );
+		$mintchat_assert( false === strpos( wp_json_encode( $contacts ), $number_b ) && false === strpos( wp_json_encode( $contacts ), $number_c ), 'list-contacts never returns phone numbers' );
+		$mintchat_assert( 1 === count( array_filter( array_column( $contacts, 'is_default' ) ) ) && $b === $contacts[ array_search( true, array_column( $contacts, 'is_default' ), true ) ]['id'], 'list-contacts flags the default contact' );
+		$added = wp_get_ability( 'mintchat/add-chat-button' )->execute(
+			array(
+				'post_id'     => $mintchat_test_post,
+				'contact_id'  => $a,
+				'button_text' => 'Chat with A',
+				'style'       => 'outline',
+				'position'    => 'start',
+			)
+		);
+		$content = get_post_field( 'post_content', $mintchat_test_post );
+		$mintchat_assert( is_array( $added ) && 0 === strpos( $content, $added['block'] ) && false !== strpos( $content, $saved ), 'add-chat-button prepends a block and keeps existing content' );
+		$parsed = parse_blocks( $content );
+		$mintchat_assert( 'mintchat/chat-button' === $parsed[0]['blockName'] && 'is-style-outline' === $parsed[0]['attrs']['className'] && 'Chat with A' === $parsed[0]['attrs']['buttonText'], 'Added block carries contact, label and style' );
+		$mintchat_assert( false !== strpos( render_block( $parsed[0] ), 'https://wa.me/' . $number_c ) && false === strpos( $added['block'], 'wa.me' ), 'Added block renders the contact link and stores no number' );
+		$mintchat_assert( is_wp_error( wp_get_ability( 'mintchat/add-chat-button' )->execute( array( 'post_id' => $mintchat_test_post, 'contact_id' => wp_generate_uuid4() ) ) ), 'Unknown contact ID is rejected' );
+		$mintchat_assert( is_wp_error( wp_get_ability( 'mintchat/add-chat-button' )->execute( array( 'post_id' => $mintchat_test_post, 'style' => 'neon' ) ) ), 'Input schema rejects an unknown style' );
+		wp_update_post(
+			array(
+				'ID'           => $mintchat_test_post,
+				'post_content' => wp_slash( $saved ),
+			)
+		);
+		wp_set_current_user( $previous_user );
+
 		$reordered = array(
 			'recipients'           => array(
 				$b => $settings['recipients'][1],

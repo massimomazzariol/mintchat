@@ -20,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
 require_once __DIR__ . '/includes/recipients.php';
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/post-message.php';
+require_once __DIR__ . '/includes/abilities.php';
 
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\editor_data' );
