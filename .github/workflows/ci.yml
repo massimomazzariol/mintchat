@@ -46,3 +46,9 @@ jobs:
         run: npx -y @wordpress/env@11.16.0 run cli wp plugin activate mintchat
       - name: Integration tests
         run: npx -y @wordpress/env@11.16.0 run cli wp eval-file wp-content/plugins/mintchat/tests/integration.php
+
+  lean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: massimomazzariol/wp-lean-check@v0
