@@ -1,0 +1,13 @@
+{
+	"type": "plugin",
+	"slug": "mintchat",
+	"blueprint": "lean/blueprint.json",
+	"pages": [ "/" ],
+	"budget": {
+		"js": 0,
+		"css": 3000,
+		"requests": 0,
+		"html": 2000,
+		"a11y": 0
+	}
+}
