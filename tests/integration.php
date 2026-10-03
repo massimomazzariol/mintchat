@@ -261,7 +261,7 @@ try {
 				),
 			)
 		);
-		$mintchat_assert( false !== strpos( $html, 'background-color:#123456' ) && false !== strpos( $html, 'padding-top:20px' ) && false !== strpos( $html, 'border-radius:12px' ) && false !== strpos( $html, 'font-size:24px' ) && false !== strpos( $html, 'aligncenter' ), 'Native style supports and positioning reach frontend markup' );
+		$mintchat_assert( false !== strpos( $html, 'background-color:#123456' ) && false !== strpos( $html, 'padding-top:20px' ) && false !== strpos( $html, 'border-radius:12px' ) && preg_match( '/font-size:(24px|clamp\()/', $html ) && false !== strpos( $html, 'aligncenter' ), 'Native style supports and positioning reach frontend markup' ); // Themes with fluid typography (Twenty Twenty-Five) turn 24px into clamp().
 		$mintchat_assert( false !== strpos( $html, 'letter-spacing:0.12em' ) && false !== strpos( $html, 'text-transform:uppercase' ), 'Letter spacing and text transform reach frontend markup' );
 		$mintchat_assert( false !== strpos( $mintchat_render( array( 'className' => 'is-style-outline' ) ), 'is-style-outline' ), 'Block style class reaches frontend markup' );
 		$mintchat_assert( registered_meta_key_exists( 'post', 'mintchat_post_message' ), 'Per-post message meta is registered for every post type' );
