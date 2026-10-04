@@ -21,6 +21,7 @@ for ( const required of [
 	'mintchat.php',
 	'uninstall.php',
 	'LICENSE',
+	'NOTICE',
 	'readme.txt',
 	'build/chat-button/block.json',
 	'build/chat-button/index.js',

@@ -31,6 +31,7 @@
 		"assets",
 		"build",
 		"readme.txt",
-		"LICENSE"
+		"LICENSE",
+		"NOTICE"
 	]
 }
