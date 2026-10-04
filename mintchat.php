@@ -5,12 +5,15 @@
  * Version: 1.0.0
  * Requires at least: 7.0
  * Requires PHP: 7.4
- * Author: Mintchat contributors
+ * Plugin URI: https://github.com/massimomazzariol/mintchat
+ * Author: Massimo Mazzariol
+ * Author URI: https://github.com/massimomazzariol
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: mintchat
  *
  * @package Mintchat
+ * @copyright 2026 Massimo Mazzariol - https://github.com/massimomazzariol/mintchat
  */
 
 namespace Mintchat;
