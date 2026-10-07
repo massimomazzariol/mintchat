@@ -313,6 +313,7 @@ try {
 				\Mintchat\settings() === array(
 					'recipients'           => array(),
 					'default_recipient_id' => '',
+					'modal'                => \Mintchat\normalize_modal( array(), array() ),
 				),
 				'Malformed stored option fails closed without warnings'
 			);
@@ -326,6 +327,62 @@ try {
 		add_filter( 'option_mintchat_settings', $filter );
 		$mintchat_assert( '' === \Mintchat\settings()['default_recipient_id'], 'Malformed stored default never reroutes to another contact' );
 		remove_filter( 'option_mintchat_settings', $filter );
+		// Contact modal: settings validation, trigger, dialog markup and assets.
+		$modal = \Mintchat\sanitize_settings(
+			array(
+				'recipients' => array(
+					'new-0' => array(
+						'label'           => 'Modal desk',
+						'number'          => '+39 333 000 0000',
+						'default_message' => 'Modal hello',
+					),
+					'new-1' => array(
+						'label'  => '',
+						'number' => '',
+					),
+				),
+				'modal'      => array(
+					'enabled'       => '1',
+					'recipient_id'  => 'new-0',
+					'title'         => 'Talk to us <b>now</b>',
+					'description'   => "Line one\nLine two",
+					'email'         => 'desk@example.com',
+					'map_latitude'  => '45.5',
+					'map_longitude' => '200',
+					'map_zoom'      => '42',
+				),
+			)
+		);
+		$mintchat_assert( 1 === count( $modal['recipients'] ), 'An unused new recipient row is ignored' );
+		$mintchat_assert( $modal['modal']['recipient_id'] === $modal['recipients'][0]['id'], 'Modal recipient maps a new row key to its UUID' );
+		$mintchat_assert( 'Talk to us now' === $modal['modal']['title'] && "Line one\nLine two" === $modal['modal']['description'], 'Modal text is sanitized, descriptions keep newlines' );
+		$mintchat_assert( '45.5' === $modal['modal']['map_latitude'] && '' === $modal['modal']['map_longitude'] && '19' === $modal['modal']['map_zoom'], 'Modal map values are range-checked and clamped' );
+		update_option( 'mintchat_settings', $modal );
+		$trigger = render_block(
+			array(
+				'blockName'    => 'mintchat/modal-trigger',
+				'attrs'        => array(),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
+		$mintchat_assert( false !== strpos( $trigger, 'data-mintchat-modal-open' ) && false !== strpos( $trigger, 'aria-haspopup="dialog"' ) && false !== strpos( $trigger, '>Contact us<' ), 'Modal trigger renders an accessible button with the default text' );
+		ob_start();
+		\Mintchat\render_modal();
+		$dialog = ob_get_clean();
+		$mintchat_assert( false !== strpos( $dialog, 'role="dialog"' ) && false !== strpos( $dialog, 'aria-labelledby="mintchat-modal-title"' ) && false !== strpos( $dialog, 'Line one<br />' ), 'Modal renders a labelled dialog' );
+		$mintchat_assert( false !== strpos( $dialog, 'wp-block-mintchat-chat-button' ) && false !== strpos( $dialog, 'https://wa.me/393330000000?text=Modal%20hello' ), 'Modal WhatsApp action is a chat button with the default message' );
+		$mintchat_assert( false === strpos( $dialog, 'openstreetmap' ), 'Modal map is omitted without both coordinates' );
+		\Mintchat\modal_assets();
+		$mintchat_assert( wp_style_is( 'mintchat-modal', 'enqueued' ) && wp_script_is( 'mintchat-modal', 'enqueued' ), 'Modal assets load while the modal is active' );
+		wp_dequeue_style( 'mintchat-modal' );
+		wp_dequeue_script( 'mintchat-modal' );
+		$modal['modal']['enabled'] = false;
+		update_option( 'mintchat_settings', $modal );
+		ob_start();
+		\Mintchat\render_modal();
+		$mintchat_assert( '' === ob_get_clean() && '' === render_block( array( 'blockName' => 'mintchat/modal-trigger', 'attrs' => array(), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ) ), 'Disabled modal renders neither dialog nor trigger' );
 		$empty = \Mintchat\sanitize_settings( array( 'recipients' => array( '_empty' => '1' ) ) );
 		update_option( 'mintchat_settings', $empty );
 		$mintchat_assert( '' === $empty['default_recipient_id'] && '' === $mintchat_render( array() ), 'Removing all recipients clears default and hides CTA' );

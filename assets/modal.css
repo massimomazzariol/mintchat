@@ -1,0 +1,160 @@
+/*
+ * Every visual value is a custom property: themes override them on
+ * .mintchat-modal without touching the rules. Colors default to the theme
+ * palette (base/contrast, then background/foreground), then system colors.
+ * The WhatsApp action is a Mintchat Chat Button and uses its styles.
+ */
+.mintchat-modal[hidden] {
+	display: none;
+}
+
+.mintchat-modal {
+	--mintchat-modal-surface: var(--wp--preset--color--base, var(--wp--preset--color--background, Canvas));
+	--mintchat-modal-text: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, CanvasText));
+	--mintchat-modal-backdrop: rgb(0 0 0 / 55%);
+	--mintchat-modal-border: color-mix(in srgb, currentcolor 20%, transparent);
+	--mintchat-modal-radius: 1.125rem;
+	--mintchat-modal-shadow: 0 1.5rem 4rem rgb(0 0 0 / 25%);
+	--mintchat-modal-width: 26.25rem;
+	--mintchat-modal-padding: clamp(2rem, 5vw, 2.5rem);
+	--mintchat-modal-gutter: var(--wp--preset--spacing--30, 1rem);
+	--mintchat-modal-z-index: 100000;
+	position: fixed;
+	z-index: var(--mintchat-modal-z-index);
+	inset: 0;
+	color: inherit;
+	font-family: inherit;
+}
+
+.mintchat-modal__overlay {
+	display: grid;
+	min-height: 100dvh;
+	padding: var(--mintchat-modal-gutter);
+	overflow-y: auto;
+	place-items: center;
+	background: var(--mintchat-modal-backdrop);
+}
+
+.mintchat-modal__dialog {
+	position: relative;
+	box-sizing: border-box;
+	width: min(var(--mintchat-modal-width), calc(100vw - 2rem));
+	max-height: 85dvh;
+	padding: var(--mintchat-modal-padding);
+	overflow-y: auto;
+	border: 1px solid var(--mintchat-modal-border);
+	border-radius: var(--mintchat-modal-radius);
+	background: var(--mintchat-modal-surface);
+	color: var(--mintchat-modal-text);
+	font-family: inherit;
+	box-shadow: var(--mintchat-modal-shadow);
+}
+
+.mintchat-modal__close {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 1.5rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.mintchat-modal__close:hover {
+	background: color-mix(in srgb, currentcolor 10%, transparent);
+}
+
+.mintchat-modal__eyebrow {
+	margin: 0 3rem 0.5rem 0;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.mintchat-modal__title {
+	margin: 0 2.5rem 0 0;
+	color: inherit;
+	line-height: 1.15;
+}
+
+.mintchat-modal__description {
+	margin: 0.75rem 0 0;
+	line-height: 1.5;
+}
+
+.mintchat-modal__actions {
+	margin-top: 1.5rem;
+}
+
+.mintchat-modal__details {
+	display: grid;
+	gap: 0.5rem;
+	margin-top: 1.25rem;
+}
+
+.mintchat-modal__details p,
+.mintchat-modal__details address {
+	margin: 0;
+	font-style: normal;
+	overflow-wrap: anywhere;
+}
+
+.mintchat-modal__map {
+	margin-top: 1.25rem;
+	overflow: hidden;
+	border-radius: 0.75rem;
+	background: color-mix(in srgb, currentcolor 6%, transparent);
+	aspect-ratio: 16 / 9;
+}
+
+.mintchat-modal__map iframe {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.mintchat-modal :focus-visible {
+	outline: 3px solid currentcolor;
+	outline-offset: 3px;
+}
+
+.mintchat-modal-open {
+	overflow: hidden;
+}
+
+@media (max-width: 30rem) {
+
+	.mintchat-modal__overlay {
+		padding: 0.75rem;
+	}
+
+	.mintchat-modal__dialog {
+		width: 100%;
+		padding: 1.5rem;
+		border-radius: 1rem;
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+	.mintchat-modal__dialog {
+		animation: mintchat-modal-in 160ms ease-out;
+	}
+}
+
+@keyframes mintchat-modal-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(0.5rem);
+	}
+}

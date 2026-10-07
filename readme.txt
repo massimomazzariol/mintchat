@@ -4,7 +4,7 @@ Tags: whatsapp, click to chat, contact button, privacy, block
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,12 +27,13 @@ For example, a hotel can set up Reception, Restaurant and Transfers, and point e
 * Three styles: Fill (WhatsApp green), Outline and Theme (your theme's button look)
 * Full design controls: colors, typography including letter spacing and uppercase, spacing, border, shadow
 * Fits inside the core Buttons block, next to your other buttons
-* Zero frontend JavaScript and zero requests: a 1 KB gzipped stylesheet, inlined by WordPress (block themes load it only where the block is used), and about 500 bytes of markup per button
+* Optional contact modal: one accessible dialog with the WhatsApp button, email, phone, address and an OpenStreetMap map, opened by the Modal Trigger block
+* Zero frontend JavaScript (a small deferred script only while the optional modal is enabled) and zero requests: a 1 KB gzipped stylesheet, inlined by WordPress (block themes load it only where the block is used), and about 500 bytes of markup per button
 * No cookies, browser storage, analytics, telemetry or tracking
 * No account, chat SDK or WhatsApp Business API needed
 * Ready for AI agents: list contacts and add buttons through the WordPress Abilities API (REST and MCP)
 
-Mintchat is a contact button, not a live chat. It does not add popups, chatbots, CRM features, automated messages or conversation analytics.
+Mintchat is a contact button, not a live chat. It does not add chatbots, CRM features, automated messages or conversation analytics.
 
 = Privacy =
 
@@ -77,6 +78,10 @@ Buttons assigned to that contact show nothing, so a visitor is never routed to t
 
 Yes. Mintchat registers two abilities on the WordPress Abilities API: mintchat/list-contacts (read-only) and mintchat/add-chat-button. Agents reach them through the REST API or an MCP server such as the WordPress MCP Adapter, with the permissions of the logged-in user. Phone numbers are never returned.
 
+= How does the contact modal work? =
+
+Enable it under Settings > Mintchat, fill in the texts and contact details, then insert the Mintchat: Modal Trigger block where visitors should open it (for example in the header). The dialog is rendered once in the footer, traps focus, closes with Escape and returns focus to the trigger. The map loads from OpenStreetMap only when the dialog is opened.
+
 = What is removed on uninstall? =
 
 The Mintchat settings and the per-page messages. The content of your posts is left untouched.
@@ -89,6 +94,10 @@ The Mintchat settings and the per-page messages. The content of your posts is le
 4. A Mintchat button next to a regular button inside a Buttons block.
 
 == Changelog ==
+
+= 1.1.0 =
+* Optional contact modal with the Modal Trigger block: WhatsApp button, email, phone, address and an OpenStreetMap map, settings in Settings > Mintchat.
+* Unused empty contact rows are ignored on save; new rows keep their default message field name.
 
 = 1.0.0 =
 * First release: centrally managed WhatsApp contacts, per-button contact and message, per-page message override, Fill, Outline and Theme styles, full design controls, support inside the Buttons block, zero frontend JavaScript and no cookies, abilities for AI agents (Abilities API).

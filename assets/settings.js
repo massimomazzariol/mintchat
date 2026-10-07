@@ -8,7 +8,7 @@ add.addEventListener( 'click', () => {
 		.content.querySelector( 'tr' )
 		.cloneNode( true );
 	const key = `new-${ nextRow++ }`;
-	row.querySelectorAll( 'input' ).forEach( ( input ) => {
+	row.querySelectorAll( 'input, textarea' ).forEach( ( input ) => {
 		input.name = input.name.replace( '__KEY__', key );
 		if ( input.type === 'radio' ) {
 			input.value = key;

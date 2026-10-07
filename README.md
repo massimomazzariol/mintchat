@@ -41,6 +41,7 @@ The button is a plain `https://wa.me/` link. Nothing loads, runs or gets stored 
 - **Three styles.** Fill (WhatsApp green), Outline and Theme (your theme's own button look).
 - **All the native design tools.** Color, typography with letter spacing and uppercase, spacing, border, radius, shadow and alignment.
 - **Safe by default.** Missing or deleted contacts hide the button instead of linking to a wrong number. Output is escaped, new tabs get `rel="noopener noreferrer"`.
+- **Optional contact modal.** One accessible dialog with the WhatsApp button, email, phone, address and an OpenStreetMap map, opened by the **Mintchat: Modal Trigger** block. Off by default; its small script loads only while it is enabled.
 - **Ready for AI agents.** Two abilities on the WordPress Abilities API: `mintchat/list-contacts` and `mintchat/add-chat-button`. See [AI agents](#ai-agents).
 - **Clean uninstall.** Removes its option and the per-page messages, leaves your content untouched.
 
@@ -50,7 +51,7 @@ Measured on WordPress 7.1 with Twenty Twenty-Five:
 
 | | Size |
 | --- | --- |
-| Frontend JavaScript | **0 bytes** |
+| Frontend JavaScript | **0 bytes** (the optional contact modal adds a 2 KB deferred script) |
 | Frontend requests | **0** (WordPress inlines the stylesheet; block themes add it only to pages that use the block) |
 | Stylesheet, icon included | 2.6 KB, 1.1 KB gzipped, once per page |
 | Markup per button | about 500 bytes, 0.3 KB gzipped |
@@ -63,7 +64,7 @@ The WhatsApp glyph (from WordPress Core social icons) lives once in the styleshe
 
 Before a click Mintchat sends no request, sets no cookie and stores nothing in the browser. After a click the visitor follows a `wa.me` link on purpose. The number and the optional message are part of that link and visible in the page source. WhatsApp's own terms and privacy policy apply from there.
 
-Mintchat is a contact button, not a live chat: no popups, chatbots, CRM, automated messages or analytics.
+Mintchat is a contact button, not a live chat: no chatbots, CRM, automated messages or analytics.
 
 ## Usage
 

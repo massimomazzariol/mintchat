@@ -14,6 +14,7 @@ function settings() {
 	$empty = array(
 		'recipients'           => array(),
 		'default_recipient_id' => '',
+		'modal'                => normalize_modal( array(), array() ),
 	);
 	if ( ! is_array( $value ) || ! isset( $value['recipients'] ) || ! is_array( $value['recipients'] ) ) {
 		return $empty;
@@ -43,6 +44,7 @@ function settings() {
 	return array(
 		'recipients'           => $recipients,
 		'default_recipient_id' => isset( $ids[ $default ] ) ? $default : '',
+		'modal'                => normalize_modal( $value['modal'] ?? array(), array_combine( array_keys( $ids ), array_keys( $ids ) ) ),
 	);
 }
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+- Optional contact modal, opened by the new Modal Trigger block: title, description, WhatsApp action (a Chat Button, so it keeps the Fill, Outline and Theme styles and AA contrast), email, phone, address and a lazy OpenStreetMap map.
+- Modal settings in Settings > Mintchat, defined once and validated on read and save; modal colors and sizes are CSS custom properties that default to the theme palette.
+- Accessible dialog: focus trap, Escape to close, focus returns to the trigger, aria-expanded on every trigger.
+- Settings: unused empty contact rows are ignored on save; the default message field of a new row is now saved.
+
 ## 1.0.0
 
 - First release of Mintchat: Click to Chat.

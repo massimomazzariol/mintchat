@@ -47,6 +47,18 @@ function sanitize_settings( $input ) {
 		if ( '_empty' === $key ) {
 			continue;
 		}
+		// Ignore an unused row added in the browser; existing rows still require explicit removal.
+		if (
+			0 === strpos( (string) $key, 'new-' ) &&
+			is_array( $row ) &&
+			isset( $row['label'], $row['number'] ) &&
+			is_string( $row['label'] ) &&
+			is_string( $row['number'] ) &&
+			'' === trim( $row['label'] ) &&
+			'' === trim( $row['number'] )
+		) {
+			continue;
+		}
 		if ( ! is_array( $row ) || ! isset( $row['label'], $row['number'] ) || ! is_string( $row['label'] ) || ! is_string( $row['number'] ) ) {
 			add_settings_error( 'mintchat_settings', 'invalid_row', __( 'Invalid recipient. Nothing was changed.', 'mintchat' ) );
 			return $old;
@@ -76,6 +88,7 @@ function sanitize_settings( $input ) {
 	}
 	$default                        = isset( $input['default_recipient_id'] ) && is_string( $input['default_recipient_id'] ) ? $input['default_recipient_id'] : '';
 	$result['default_recipient_id'] = $map[ $default ] ?? ( $result['recipients'][0]['id'] ?? '' );
+	$result['modal']                = normalize_modal( $input['modal'] ?? array(), $map );
 	return $result;
 }
 
@@ -91,7 +104,7 @@ function settings_menu() {
  */
 function settings_assets( $hook ) {
 	if ( 'settings_page_mintchat' === $hook ) {
-		wp_enqueue_script( 'mintchat-settings', plugins_url( '../assets/settings.js', __FILE__ ), array(), '1.0.0', true );
+		wp_enqueue_script( 'mintchat-settings', plugins_url( '../assets/settings.js', __FILE__ ), array(), VERSION, true );
 	}
 }
 
@@ -139,6 +152,7 @@ function settings_page() {
 				</tbody>
 			</table>
 			<p><button type="button" class="button" id="mintchat-add"><?php esc_html_e( 'Add recipient', 'mintchat' ); ?></button></p>
+			<?php settings_modal( $value ); ?>
 			<?php submit_button(); ?>
 		</form>
 		<template id="mintchat-row"><table><tbody>
@@ -155,5 +169,42 @@ function settings_page() {
 		?>
 		</tbody></table></template>
 	</div>
+	<?php
+}
+
+/**
+ * Render the contact modal section from the single field definition.
+ *
+ * @param array $value Current settings.
+ */
+function settings_modal( $value ) {
+	$modal  = $value['modal'];
+	$limits = map_limits();
+	?>
+	<h2><?php esc_html_e( 'Contact modal', 'mintchat' ); ?></h2>
+	<p><?php esc_html_e( 'Mintchat renders this modal automatically in the site footer. Add a Mintchat Modal Trigger block where visitors should open it.', 'mintchat' ); ?></p>
+	<table class="form-table" role="presentation">
+		<tr><th scope="row"><?php esc_html_e( 'Enable modal', 'mintchat' ); ?></th><td><label><input type="checkbox" name="mintchat_settings[modal][enabled]" value="1" <?php checked( $modal['enabled'] ); ?>> <?php esc_html_e( 'Render the contact modal on the frontend', 'mintchat' ); ?></label></td></tr>
+		<tr><th scope="row"><label for="mintchat-modal-recipient_id"><?php esc_html_e( 'WhatsApp recipient', 'mintchat' ); ?></label></th><td><select id="mintchat-modal-recipient_id" name="mintchat_settings[modal][recipient_id]"><option value=""><?php esc_html_e( 'Use global default', 'mintchat' ); ?></option><?php foreach ( $value['recipients'] as $row ) : ?><option value="<?php echo esc_attr( $row['id'] ); ?>" <?php selected( $modal['recipient_id'], $row['id'] ); ?>><?php echo esc_html( $row['label'] ); ?></option><?php endforeach; ?></select></td></tr>
+		<?php
+		foreach ( modal_fields() as $key => $field ) :
+			$id   = 'mintchat-modal-' . $key;
+			$name = 'mintchat_settings[modal][' . $key . ']';
+			$help = isset( $field['help'] ) ? $id . '-help' : '';
+			?>
+			<tr><th scope="row"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th><td>
+			<?php if ( 'textarea' === $field['type'] ) : ?>
+				<textarea class="large-text" rows="3" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"><?php echo esc_textarea( $modal[ $key ] ); ?></textarea>
+			<?php elseif ( isset( $limits[ $field['type'] ] ) ) : ?>
+				<input class="<?php echo 'zoom' === $field['type'] ? 'small-text' : 'regular-text'; ?>" id="<?php echo esc_attr( $id ); ?>" type="number" min="<?php echo esc_attr( $limits[ $field['type'] ][0] ); ?>" max="<?php echo esc_attr( $limits[ $field['type'] ][1] ); ?>" step="<?php echo 'zoom' === $field['type'] ? '1' : 'any'; ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $modal[ $key ] ); ?>"<?php echo $help ? ' aria-describedby="' . esc_attr( $help ) . '"' : ''; ?>>
+			<?php else : ?>
+				<input class="regular-text" id="<?php echo esc_attr( $id ); ?>" type="<?php echo 'email' === $field['type'] ? 'email' : 'text'; ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $modal[ $key ] ); ?>">
+			<?php endif; ?>
+			<?php if ( $help ) : ?>
+				<p class="description" id="<?php echo esc_attr( $help ); ?>"><?php echo esc_html( $field['help'] ); ?></p>
+			<?php endif; ?>
+			</td></tr>
+		<?php endforeach; ?>
+	</table>
 	<?php
 }

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "mintchat/modal-trigger",
+  "version": "1.1.0",
+  "title": "Mintchat: Modal Trigger",
+  "category": "widgets",
+  "icon": "feedback",
+  "description": "Opens the global Mintchat contact modal.",
+  "keywords": [
+    "whatsapp",
+    "contact",
+    "modal",
+    "dialog"
+  ],
+  "textdomain": "mintchat",
+  "attributes": {
+    "buttonText": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "width": true,
+      "style": true,
+      "radius": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}
