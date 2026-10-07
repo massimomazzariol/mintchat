@@ -1,1 +1,1 @@
-.mintchat-modal-trigger{cursor:pointer}.mintchat-modal-trigger:focus-visible{outline:3px solid currentcolor;outline-offset:3px}
+.mintchat-modal-trigger{cursor:pointer}.mintchat-modal-trigger:focus-visible{outline:var(--mintchat-focus-width,3px) solid currentcolor;outline-offset:var(--mintchat-focus-width,3px)}

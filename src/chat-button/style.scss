@@ -7,11 +7,19 @@
  * icon+label row and the three block styles are added here. Block color,
  * border and typography settings always win over these defaults.
  */
+// Fill style brand colors (WhatsApp green, AA contrast) and the icon/label gap.
+// Zero specificity, so any theme rule overrides them.
+:where(.wp-block-mintchat-chat-button) {
+	--mintchat-brand: #25d366;
+	--mintchat-on-brand: #111b21;
+	--mintchat-gap: 0.55em;
+}
+
 .wp-block-mintchat-chat-button.wp-element-button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.55em;
+	gap: var(--mintchat-gap);
 	max-width: 100%;
 	font-family: inherit;
 }
@@ -21,8 +29,8 @@
 }
 
 .wp-block-mintchat-chat-button:focus-visible {
-	outline: 3px solid currentcolor;
-	outline-offset: 4px;
+	outline: var(--mintchat-focus-width, 3px) solid currentcolor;
+	outline-offset: calc(var(--mintchat-focus-width, 3px) + 1px);
 }
 
 /* Fill (default): WhatsApp green. */
@@ -32,11 +40,11 @@
 	font-weight: 600;
 
 	&:not(.has-background) {
-		background-color: #25d366;
+		background-color: var(--mintchat-brand);
 	}
 
 	&:not(.has-text-color) {
-		color: #111b21;
+		color: var(--mintchat-on-brand);
 	}
 }
 

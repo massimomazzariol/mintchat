@@ -3,6 +3,6 @@
 }
 
 .mintchat-modal-trigger:focus-visible {
-	outline: 3px solid currentcolor;
-	outline-offset: 3px;
+	outline: var(--mintchat-focus-width, 3px) solid currentcolor;
+	outline-offset: var(--mintchat-focus-width, 3px);
 }

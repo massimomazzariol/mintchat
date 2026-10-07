@@ -33,14 +33,17 @@ function modal_fields() {
 }
 
 /**
- * OpenStreetMap limits: coordinates in degrees and the public tile zoom range.
- * Protocol constants, not settings.
+ * OpenStreetMap limits: coordinates in degrees, the public tile zoom range, and the embed view:
+ * 'span' is the half width in degrees shown at the default zoom (it halves at each zoom step),
+ * 'aspect' the height to width ratio of the box. Protocol and geometry constants, not settings.
  */
 function map_limits() {
 	return array(
 		'latitude'  => array( -90, 90 ),
 		'longitude' => array( -180, 180 ),
 		'zoom'      => array( 1, 19, 15 ), // Minimum, maximum, default.
+		'span'      => 0.01,
+		'aspect'    => 0.6,
 	);
 }
 
@@ -118,10 +121,12 @@ function modal_map_url( $settings ) {
 	if ( '' === $settings['map_latitude'] || '' === $settings['map_longitude'] ) {
 		return '';
 	}
+	$limits    = map_limits();
 	$latitude  = (float) $settings['map_latitude'];
 	$longitude = (float) $settings['map_longitude'];
-	$delta     = 0.01 * pow( 2, map_limits()['zoom'][2] - (int) $settings['map_zoom'] );
-	$bounds    = implode( ',', array( $longitude - $delta, $latitude - ( $delta * 0.6 ), $longitude + $delta, $latitude + ( $delta * 0.6 ) ) );
+	$delta     = $limits['span'] * pow( 2, $limits['zoom'][2] - (int) $settings['map_zoom'] );
+	$height    = $delta * $limits['aspect'];
+	$bounds    = implode( ',', array( $longitude - $delta, $latitude - $height, $longitude + $delta, $latitude + $height ) );
 	return 'https://www.openstreetmap.org/export/embed.html?bbox=' . rawurlencode( $bounds ) . '&layer=mapnik&marker=' . rawurlencode( $latitude . ',' . $longitude );
 }
 

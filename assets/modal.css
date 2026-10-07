@@ -1,8 +1,9 @@
 /*
  * Every visual value is a custom property: themes override them on
- * .mintchat-modal without touching the rules. Colors default to the theme
- * palette (base/contrast, then background/foreground), then system colors.
- * The WhatsApp action is a Mintchat Chat Button and uses its styles.
+ * .mintchat-modal without touching the rules. Colors and spacing default to
+ * the theme presets when they exist, then to neutral fallbacks. Sizes are
+ * fluid, so no breakpoint is needed. The WhatsApp action is a Mintchat Chat
+ * Button and uses its styles.
  */
 .mintchat-modal[hidden] {
 	display: none;
@@ -13,11 +14,28 @@
 	--mintchat-modal-text: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, CanvasText));
 	--mintchat-modal-backdrop: rgb(0 0 0 / 55%);
 	--mintchat-modal-border: color-mix(in srgb, currentcolor 20%, transparent);
+	--mintchat-modal-tint: color-mix(in srgb, currentcolor 6%, transparent);
+	--mintchat-modal-hover: color-mix(in srgb, currentcolor 10%, transparent);
 	--mintchat-modal-radius: 1.125rem;
+	--mintchat-modal-map-radius: 0.75rem;
 	--mintchat-modal-shadow: 0 1.5rem 4rem rgb(0 0 0 / 25%);
 	--mintchat-modal-width: 26.25rem;
-	--mintchat-modal-padding: clamp(2rem, 5vw, 2.5rem);
-	--mintchat-modal-gutter: var(--wp--preset--spacing--30, 1rem);
+	--mintchat-modal-max-height: 85dvh;
+	--mintchat-modal-padding: clamp(1.5rem, 5vw, 2.5rem);
+	--mintchat-modal-gutter: clamp(0.75rem, 3vw, var(--wp--preset--spacing--30, 1rem));
+	--mintchat-modal-gap-small: 0.5rem;
+	--mintchat-modal-gap: 0.75rem;
+	--mintchat-modal-gap-large: 1.25rem;
+	--mintchat-modal-actions-gap: 1.5rem;
+	--mintchat-modal-close-size: 2rem;
+	--mintchat-modal-close-inset: 0.75rem;
+	--mintchat-modal-close-font-size: 1.5rem;
+	--mintchat-modal-eyebrow-font-size: var(--wp--preset--font-size--small, 0.8rem);
+	--mintchat-modal-eyebrow-tracking: 0.08em;
+	--mintchat-modal-focus-width: var(--mintchat-focus-width, 3px);
+	--mintchat-modal-map-ratio: 16 / 9;
+	--mintchat-modal-duration: 160ms;
+	--mintchat-modal-rise: 0.5rem;
 	--mintchat-modal-z-index: 100000;
 	position: fixed;
 	z-index: var(--mintchat-modal-z-index);
@@ -38,8 +56,8 @@
 .mintchat-modal__dialog {
 	position: relative;
 	box-sizing: border-box;
-	width: min(var(--mintchat-modal-width), calc(100vw - 2rem));
-	max-height: 85dvh;
+	width: min(var(--mintchat-modal-width), 100%);
+	max-height: var(--mintchat-modal-max-height);
 	padding: var(--mintchat-modal-padding);
 	overflow-y: auto;
 	border: 1px solid var(--mintchat-modal-border);
@@ -52,52 +70,53 @@
 
 .mintchat-modal__close {
 	position: absolute;
-	top: 0.75rem;
-	right: 0.75rem;
-	width: 2rem;
-	height: 2rem;
+	top: var(--mintchat-modal-close-inset);
+	right: var(--mintchat-modal-close-inset);
+	width: var(--mintchat-modal-close-size);
+	height: var(--mintchat-modal-close-size);
 	padding: 0;
 	border: 0;
 	border-radius: 50%;
 	background: transparent;
 	color: inherit;
 	font: inherit;
-	font-size: 1.5rem;
+	font-size: var(--mintchat-modal-close-font-size);
 	line-height: 1;
 	cursor: pointer;
 }
 
 .mintchat-modal__close:hover {
-	background: color-mix(in srgb, currentcolor 10%, transparent);
+	background: var(--mintchat-modal-hover);
 }
 
+/* The heading lines leave room for the close button. */
 .mintchat-modal__eyebrow {
-	margin: 0 3rem 0.5rem 0;
-	font-size: 0.8rem;
+	margin: 0 calc(var(--mintchat-modal-close-size) + var(--mintchat-modal-close-inset)) var(--mintchat-modal-gap-small) 0;
+	font-size: var(--mintchat-modal-eyebrow-font-size);
 	font-weight: 700;
-	letter-spacing: 0.08em;
+	letter-spacing: var(--mintchat-modal-eyebrow-tracking);
 	text-transform: uppercase;
 }
 
 .mintchat-modal__title {
-	margin: 0 2.5rem 0 0;
+	margin: 0 calc(var(--mintchat-modal-close-size) + var(--mintchat-modal-close-inset)) 0 0;
 	color: inherit;
 	line-height: 1.15;
 }
 
 .mintchat-modal__description {
-	margin: 0.75rem 0 0;
+	margin: var(--mintchat-modal-gap) 0 0;
 	line-height: 1.5;
 }
 
 .mintchat-modal__actions {
-	margin-top: 1.5rem;
+	margin-top: var(--mintchat-modal-actions-gap);
 }
 
 .mintchat-modal__details {
 	display: grid;
-	gap: 0.5rem;
-	margin-top: 1.25rem;
+	gap: var(--mintchat-modal-gap-small);
+	margin-top: var(--mintchat-modal-gap-large);
 }
 
 .mintchat-modal__details p,
@@ -108,11 +127,11 @@
 }
 
 .mintchat-modal__map {
-	margin-top: 1.25rem;
+	margin-top: var(--mintchat-modal-gap-large);
 	overflow: hidden;
-	border-radius: 0.75rem;
-	background: color-mix(in srgb, currentcolor 6%, transparent);
-	aspect-ratio: 16 / 9;
+	border-radius: var(--mintchat-modal-map-radius);
+	background: var(--mintchat-modal-tint);
+	aspect-ratio: var(--mintchat-modal-map-ratio);
 }
 
 .mintchat-modal__map iframe {
@@ -123,31 +142,18 @@
 }
 
 .mintchat-modal :focus-visible {
-	outline: 3px solid currentcolor;
-	outline-offset: 3px;
+	outline: var(--mintchat-modal-focus-width) solid currentcolor;
+	outline-offset: var(--mintchat-modal-focus-width);
 }
 
 .mintchat-modal-open {
 	overflow: hidden;
 }
 
-@media (max-width: 30rem) {
-
-	.mintchat-modal__overlay {
-		padding: 0.75rem;
-	}
-
-	.mintchat-modal__dialog {
-		width: 100%;
-		padding: 1.5rem;
-		border-radius: 1rem;
-	}
-}
-
 @media (prefers-reduced-motion: no-preference) {
 
 	.mintchat-modal__dialog {
-		animation: mintchat-modal-in 160ms ease-out;
+		animation: mintchat-modal-in var(--mintchat-modal-duration) ease-out;
 	}
 }
 
@@ -155,6 +161,6 @@
 
 	from {
 		opacity: 0;
-		transform: translateY(0.5rem);
+		transform: translateY(var(--mintchat-modal-rise));
 	}
 }
