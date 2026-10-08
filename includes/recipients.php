@@ -85,11 +85,13 @@ function normalize_phone( $number ) {
 }
 
 /**
- * Encode the original message once, including newlines and Unicode.
+ * Encode the original message once, including newlines and Unicode. The 'mintchat_message' filter
+ * lets translation plugins and sites change the pre-filled text (e.g. into the page language).
  *
  * @param string $number Validated international number.
  * @param string $message Original message.
  */
 function message_url( $number, $message ) {
+	$message = (string) apply_filters( 'mintchat_message', $message, $number );
 	return 'https://wa.me/' . $number . ( '' === $message ? '' : '?text=' . rawurlencode( $message ) );
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- New `mintchat_message` filter on the pre-filled WhatsApp message, for translation plugins (LangSail) and site customizations.
+
 ## 1.1.0
 
 - Optional contact modal, opened by the new Modal Trigger block: title, description, WhatsApp action (a Chat Button, so it keeps the Fill, Outline and Theme styles and AA contrast), email, phone, address and a lazy OpenStreetMap map.

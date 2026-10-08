@@ -4,7 +4,7 @@ Tags: whatsapp, click to chat, contact button, privacy, block
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,9 @@ The Mintchat settings and the per-page messages. The content of your posts is le
 4. A Mintchat button next to a regular button inside a Buttons block.
 
 == Changelog ==
+
+= 1.2.0 =
+* New mintchat_message filter: translation plugins and sites can change the pre-filled message (e.g. into the page language).
 
 = 1.1.0 =
 * Optional contact modal with the Modal Trigger block: WhatsApp button, email, phone, address and an OpenStreetMap map, settings in Settings > Mintchat.

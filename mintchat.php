@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Mintchat: Click to Chat
  * Description: Lightweight, cookie-free click-to-chat block for WhatsApp with multiple contacts and zero frontend JavaScript.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires at least: 7.0
  * Requires PHP: 7.4
  * Plugin URI: https://github.com/massimomazzariol/mintchat
@@ -20,7 +20,7 @@ namespace Mintchat;
 
 defined( 'ABSPATH' ) || exit;
 
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 
 require_once __DIR__ . '/includes/recipients.php';
 require_once __DIR__ . '/includes/settings.php';

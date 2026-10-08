@@ -383,6 +383,10 @@ try {
 		ob_start();
 		\Mintchat\render_modal();
 		$mintchat_assert( '' === ob_get_clean() && '' === render_block( array( 'blockName' => 'mintchat/modal-trigger', 'attrs' => array(), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ) ), 'Disabled modal renders neither dialog nor trigger' );
+		$filter = static fn( $message ) => 'Filtered: ' . $message;
+		add_filter( 'mintchat_message', $filter );
+		$mintchat_assert( 'https://wa.me/393330000000?text=Filtered%3A%20Hi' === \Mintchat\message_url( '393330000000', 'Hi' ), 'The mintchat_message filter can change the pre-filled message' );
+		remove_filter( 'mintchat_message', $filter );
 		$empty = \Mintchat\sanitize_settings( array( 'recipients' => array( '_empty' => '1' ) ) );
 		update_option( 'mintchat_settings', $empty );
 		$mintchat_assert( '' === $empty['default_recipient_id'] && '' === $mintchat_render( array() ), 'Removing all recipients clears default and hides CTA' );
