@@ -42,6 +42,7 @@ The button is a plain `https://wa.me/` link. Nothing loads, runs or gets stored 
 - **All the native design tools.** Color, typography with letter spacing and uppercase, spacing, border, radius, shadow and alignment.
 - **Safe by default.** Missing or deleted contacts hide the button instead of linking to a wrong number. Output is escaped, new tabs get `rel="noopener noreferrer"`.
 - **Optional contact modal.** One accessible dialog with the WhatsApp button, email, phone, address and an OpenStreetMap map, opened by the **Mintchat: Modal Trigger** block. Off by default; its small script loads only while it is enabled.
+- **Multilingual with LangSail.** When [LangSail](https://github.com/massimomazzariol/langsail) is active, each contact gets a default message field per site language, and button and page messages are translated in its table. Without it, nothing changes.
 - **Ready for AI agents.** Two abilities on the WordPress Abilities API: `mintchat/list-contacts` and `mintchat/add-chat-button`. See [AI agents](#ai-agents).
 - **Clean uninstall.** Removes its option and the per-page messages, leaves your content untouched.
 
@@ -53,10 +54,10 @@ Measured on WordPress 7.1 with Twenty Twenty-Five:
 | --- | --- |
 | Frontend JavaScript | **0 bytes** (the optional contact modal adds a 2 KB deferred script) |
 | Frontend requests | **0** (WordPress inlines the stylesheet; block themes add it only to pages that use the block) |
-| Stylesheet, icon included | 2.6 KB, 1.1 KB gzipped, once per page |
+| Stylesheet, icon included | 2.8 KB, 1.2 KB gzipped, once per page |
 | Markup per button | about 500 bytes, 0.3 KB gzipped |
 | Cookies, local storage, external calls | none |
-| Release ZIP | 25 KB, 17 files, 61 KB unpacked |
+| Release ZIP | 40 KB, 31 files, 97 KB unpacked |
 
 The WhatsApp glyph (from WordPress Core social icons) lives once in the stylesheet as a CSS mask and takes the button's text color, so ten buttons cost the same icon bytes as one.
 
@@ -65,6 +66,20 @@ The WhatsApp glyph (from WordPress Core social icons) lives once in the styleshe
 Before a click Mintchat sends no request, sets no cookie and stores nothing in the browser. After a click the visitor follows a `wa.me` link on purpose. The number and the optional message are part of that link and visible in the page source. WhatsApp's own terms and privacy policy apply from there.
 
 Mintchat is a contact button, not a live chat: no chatbots, CRM, automated messages or analytics.
+
+## Your data
+
+| Data | Where |
+| --- | --- |
+| Contacts, contact modal, data choice | option `mintchat_settings` |
+| Per-page message | post meta `mintchat_post_message` |
+
+| You... | What happens |
+| --- | --- |
+| Deactivate the plugin | Nothing is removed. Buttons and the modal stop showing; page content stays as it is. |
+| Delete the plugin | **Nothing is removed by default**: install it again and everything is back. Only with **Settings > Mintchat > Your data > Delete all Mintchat data** turned on are the option and the page messages erased. Page content is never changed. |
+| Download backup (Settings > Mintchat) | One JSON file with contacts, contact modal and page messages. |
+| Restore it | Here or on another site; pages are matched by type and address, so IDs may differ. |
 
 ## Usage
 

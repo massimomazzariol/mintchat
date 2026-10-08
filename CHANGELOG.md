@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- Deleting the plugin keeps contacts, the contact modal and page messages unless Settings > Mintchat > Your data > Delete all Mintchat data is on. Page content is never changed.
+- Backup: download every setting and page message as one JSON file and restore it here or on another site (pages matched by type and address). A restore never turns on data deletion.
+
 ## 1.2.0
 
 - With a translation plugin offering site languages (LangSail filters), Settings > Mintchat shows a default message field per language, with its flag; the translations are saved in that plugin.

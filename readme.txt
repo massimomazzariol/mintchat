@@ -4,7 +4,7 @@ Tags: whatsapp, click to chat, contact button, privacy, block
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,14 @@ Mintchat is an independent project. It is not affiliated with, endorsed by or sp
 
 == Frequently Asked Questions ==
 
+= What happens to my contacts if I delete the plugin? =
+
+Nothing, by default: deleting Mintchat keeps contacts, the contact modal and page messages, and installing it again brings everything back. They are erased only if you turn on Settings > Mintchat > Your data > Delete all Mintchat data. Page content is never changed; without the plugin the buttons simply do not show.
+
+= How do I back up or move the settings? =
+
+Settings > Mintchat > Backup > Download backup, then Restore on the same or another site.
+
 = What number format is required? =
 
 An international number with the country code. A single leading + is optional. Spaces, parentheses, dots and hyphens are removed. Letters, extensions, repeated plus signs, a leading 00 and numbers outside 7 to 15 digits are rejected.
@@ -94,6 +102,10 @@ The Mintchat settings and the per-page messages. The content of your posts is le
 4. A Mintchat button next to a regular button inside a Buttons block.
 
 == Changelog ==
+
+= 1.3.0 =
+* Deleting the plugin keeps your data unless you choose otherwise in Settings > Mintchat > Your data.
+* Backup and restore of every setting and page message as a JSON file.
 
 = 1.2.0 =
 * New mintchat_message filter: translation plugins and sites can change the pre-filled message (e.g. into the page language).

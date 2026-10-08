@@ -96,6 +96,7 @@ function sanitize_settings( $input ) {
 	$default                        = isset( $input['default_recipient_id'] ) && is_string( $input['default_recipient_id'] ) ? $input['default_recipient_id'] : '';
 	$result['default_recipient_id'] = $map[ $default ] ?? ( $result['recipients'][0]['id'] ?? '' );
 	$result['modal']                = normalize_modal( $input['modal'] ?? array(), $map );
+	$result['delete_data']          = ! empty( $input['delete_data'] );
 	// Translations of the default messages belong to the translation plugin (LangSail): hand them over.
 	foreach ( $translations as $translation ) {
 		do_action( 'langsail_set_translation', $translation[0], $translation[1], $translation[2] );
@@ -182,8 +183,10 @@ function settings_page() {
 			</table>
 			<p><button type="button" class="button" id="mintchat-add"><?php esc_html_e( 'Add recipient', 'mintchat' ); ?></button></p>
 			<?php settings_modal( $value ); ?>
+			<?php settings_data( $value ); ?>
 			<?php submit_button(); ?>
 		</form>
+		<?php settings_backup(); ?>
 		<template id="mintchat-row"><table><tbody>
 		<?php
 		settings_row(

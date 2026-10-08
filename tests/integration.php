@@ -314,6 +314,7 @@ try {
 					'recipients'           => array(),
 					'default_recipient_id' => '',
 					'modal'                => \Mintchat\normalize_modal( array(), array() ),
+					'delete_data'          => false,
 				),
 				'Malformed stored option fails closed without warnings'
 			);
@@ -414,6 +415,18 @@ try {
 		remove_action( 'langsail_set_translation', $receiver, 10 );
 		$mintchat_assert( str_contains( $row_html, '[translations][it_IT]' ) && str_contains( $row_html, 'Italiano' ), 'Each site language gets a default message field' );
 		$mintchat_assert( array( array( 'Hello', 'it_IT', 'Ciao !' ) ) === $handed, 'Per-language messages are sanitized and handed to the translation plugin' );
+		// Backup: settings and page messages round-trip; the deletion choice never travels.
+		$valid = \Mintchat\sanitize_settings( array( 'recipients' => array( 'new-0' => array( 'label' => 'Desk', 'number' => '+39 333 000 0000', 'default_message' => 'Hello' ) ), 'delete_data' => '1' ) );
+		update_option( 'mintchat_settings', $valid );
+		update_post_meta( $mintchat_test_post, 'mintchat_post_message', 'Backup probe' );
+		$backup = json_decode( wp_json_encode( \Mintchat\export_data() ), true );
+		$mintchat_assert( ! isset( $backup['settings']['delete_data'] ) && in_array( 'Backup probe', array_column( $backup['post_messages'], 'message' ), true ), 'The backup holds settings and page messages, not the deletion choice' );
+		update_option( 'mintchat_settings', array( 'recipients' => array() ) );
+		delete_post_meta( $mintchat_test_post, 'mintchat_post_message' );
+		$restored = \Mintchat\import_data( $backup );
+		$mintchat_assert( ! is_wp_error( $restored ) && $valid['recipients'] === \Mintchat\settings()['recipients'] && $valid['default_recipient_id'] === \Mintchat\settings()['default_recipient_id'] && 'Backup probe' === get_post_meta( $mintchat_test_post, 'mintchat_post_message', true ), 'Restoring a backup brings back contacts, default and page messages' );
+		$mintchat_assert( false === \Mintchat\settings()['delete_data'], 'A restore never turns on data deletion' );
+		$mintchat_assert( is_wp_error( \Mintchat\import_data( array( 'format' => 'other' ) ) ), 'Files that are not Mintchat backups are refused' );
 		$empty = \Mintchat\sanitize_settings( array( 'recipients' => array( '_empty' => '1' ) ) );
 		update_option( 'mintchat_settings', $empty );
 		$mintchat_assert( '' === $empty['default_recipient_id'] && '' === $mintchat_render( array() ), 'Removing all recipients clears default and hides CTA' );
@@ -423,7 +436,10 @@ try {
 			}
 			update_post_meta( $mintchat_test_post, 'mintchat_post_message', 'Uninstall probe' );
 			require dirname( __DIR__ ) . '/uninstall.php';
-			$mintchat_assert( null === get_option( 'mintchat_settings', null ), 'Uninstall deletes the Mintchat option' );
+			$mintchat_assert( is_array( get_option( 'mintchat_settings', null ) ) && 'Uninstall probe' === get_post_meta( $mintchat_test_post, 'mintchat_post_message', true ), 'Uninstall keeps the data by default' );
+			update_option( 'mintchat_settings', array( 'recipients' => array(), 'delete_data' => true ) );
+			mintchat_uninstall_site();
+			$mintchat_assert( null === get_option( 'mintchat_settings', null ), 'Uninstall deletes the Mintchat option when the owner chose so' );
 			$mintchat_assert( '' === get_post_meta( $mintchat_test_post, 'mintchat_post_message', true ), 'Uninstall deletes per-post messages' );
 			$mintchat_assert( get_post_field( 'post_content', $mintchat_test_post ) === $saved, 'Uninstall leaves Gutenberg content untouched' );
 		}

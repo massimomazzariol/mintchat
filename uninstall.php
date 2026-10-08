@@ -1,5 +1,5 @@
 <?php
-/** Delete Mintchat settings and per-post messages; leave post content untouched.
+/** Delete Mintchat settings and per-post messages only when the site owner chose so; leave post content untouched.
  *
  * @package Mintchat
  */
@@ -8,6 +8,11 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 /** Remove this site's plugin data. */
 function mintchat_uninstall_site() {
+	// Data stays unless the site owner asked for it to go (Settings > Mintchat > Your data).
+	$settings = get_option( 'mintchat_settings' );
+	if ( ! is_array( $settings ) || empty( $settings['delete_data'] ) ) {
+		return;
+	}
 	delete_option( 'mintchat_settings' );
 	delete_post_meta_by_key( 'mintchat_post_message' );
 }

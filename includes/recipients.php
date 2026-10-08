@@ -15,6 +15,7 @@ function settings() {
 		'recipients'           => array(),
 		'default_recipient_id' => '',
 		'modal'                => normalize_modal( array(), array() ),
+		'delete_data'          => is_array( $value ) && ! empty( $value['delete_data'] ),
 	);
 	if ( ! is_array( $value ) || ! isset( $value['recipients'] ) || ! is_array( $value['recipients'] ) ) {
 		return $empty;
@@ -45,6 +46,7 @@ function settings() {
 		'recipients'           => $recipients,
 		'default_recipient_id' => isset( $ids[ $default ] ) ? $default : '',
 		'modal'                => normalize_modal( $value['modal'] ?? array(), array_combine( array_keys( $ids ), array_keys( $ids ) ) ),
+		'delete_data'          => ! empty( $value['delete_data'] ),
 	);
 }
 
