@@ -1,0 +1,14 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/",
+	"login": true,
+	"preferredVersions": { "php": "8.3", "wp": "latest" },
+	"steps": [
+		{ "step": "installPlugin", "pluginData": { "resource": "wordpress.org/plugins", "slug": "mintchat" } },
+		{ "step": "setSiteOptions", "options": { "blogname": "Harbor Bakery", "permalink_structure": "/%postname%/" } },
+		{
+			"step": "runPHP",
+			"code": "<?php require '/wordpress/wp-load.php'; wp_delete_post( 1, true ); wp_delete_post( 2, true ); $id = wp_generate_uuid4(); $sales = wp_generate_uuid4(); update_option( 'mintchat_settings', array( 'recipients' => array( array( 'id' => $id, 'label' => 'Reception', 'number' => '15550001234', 'default_message' => 'Hello! I have a question.' ), array( 'id' => $sales, 'label' => 'Orders', 'number' => '15550005678', 'default_message' => 'Hi, I would like to order a cake.' ) ), 'default_recipient_id' => $id, 'modal' => array( 'enabled' => true, 'title' => 'Get in touch', 'description' => 'We answer within the hour, 7 a.m. to 2 p.m.', 'email' => 'hello@example.com', 'phone' => '+1 555 000 1234', 'address' => '1 Harbor Street', 'map_latitude' => '40.7069', 'map_longitude' => '-74.0113', 'map_zoom' => '16', 'trigger_text' => 'Contact and map' ) ) ); $content = '<!-- wp:heading {\"level\":1} --><h1 class=\"wp-block-heading\">Talk to us on WhatsApp</h1><!-- /wp:heading --><!-- wp:paragraph --><p>Each button opens a chat with the right person and a message ready to send. No script, no cookie.</p><!-- /wp:paragraph --><!-- wp:buttons --><div class=\"wp-block-buttons\"><!-- wp:mintchat/chat-button {\"useDefaultMessage\":true} /--><!-- wp:mintchat/chat-button {\"recipientId\":\"' . $sales . '\",\"useDefaultMessage\":true,\"buttonText\":\"Order a cake\",\"className\":\"is-style-outline\"} /--><!-- wp:mintchat/modal-trigger /--></div><!-- /wp:buttons -->'; $page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Contact', 'post_content' => wp_slash( $content ), 'page_template' => 'page-no-title' ) ); update_option( 'show_on_front', 'page' ); update_option( 'page_on_front', $page );"
+		}
+	]
+}

@@ -17,6 +17,10 @@
   <img alt="License: GPL-2.0-or-later" src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue">
 </p>
 
+<p align="center">
+  <a href="https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/massimomazzariol/mintchat/main/.wordpress-org/blueprints/blueprint-github.json"><img alt="Try it in your browser: a demo page with two contacts and the contact modal, nothing to install" src="https://img.shields.io/badge/Try%20it%20in%20your%20browser-live%20demo-25d366?style=for-the-badge&logo=wordpress&logoColor=white"></a>
+</p>
+
 ---
 
 Configure your contacts once (Sales, Support, Bookings...), then drop a button wherever you want it. Each button picks a contact and a message. Change a number in one place and every button follows, without resaving a single post.
