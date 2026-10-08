@@ -387,6 +387,17 @@ try {
 		add_filter( 'mintchat_message', $filter );
 		$mintchat_assert( 'https://wa.me/393330000000?text=Filtered%3A%20Hi' === \Mintchat\message_url( '393330000000', 'Hi' ), 'The mintchat_message filter can change the pre-filled message' );
 		remove_filter( 'mintchat_message', $filter );
+		// Without a translation plugin the settings keep the single default message field.
+		global $wp_filter;
+		$saved_languages = $wp_filter['langsail_languages'] ?? null;
+		unset( $wp_filter['langsail_languages'] );
+		ob_start();
+		\Mintchat\settings_row( 'new-0', array( 'label' => 'A', 'number' => '', 'default_message' => 'Hello' ), '' );
+		$plain_row = ob_get_clean();
+		if ( $saved_languages ) {
+			$wp_filter['langsail_languages'] = $saved_languages; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restores the hooks removed above.
+		}
+		$mintchat_assert( ! str_contains( $plain_row, '[translations]' ) && str_contains( $plain_row, '[default_message]' ), 'Without a translation plugin there is one default message field' );
 		// A translation plugin offering languages gets the per-language default messages on save.
 		$languages = static fn() => array( 'it_IT' => array( 'name' => 'Italiano', 'flag' => '', 'prefix' => 'it' ) );
 		$handed    = array();
