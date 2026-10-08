@@ -52,6 +52,13 @@ Mintchat is an independent project. It is not affiliated with, endorsed by or sp
 3. Edit a page, insert the "Mintchat: Click to Chat" block (on its own or inside a Buttons block).
 4. Pick a contact, write the message if you want one, choose a style and publish.
 
+== External services ==
+
+Mintchat loads nothing from other services by itself. Two features link to or embed external services, only after a visitor's action:
+
+* WhatsApp (wa.me): each button is a plain link to https://wa.me/ with the contact number and the optional pre-filled message. Nothing is sent until the visitor clicks it; then WhatsApp handles the chat. Terms: https://www.whatsapp.com/legal/terms-of-service Privacy: https://www.whatsapp.com/legal/privacy-policy
+* OpenStreetMap: if you enable the contact modal and enter coordinates, the modal shows an embedded OpenStreetMap map. It loads only when a visitor opens the modal, and then the visitor's browser requests the map from openstreetmap.org (IP address, the map area). Terms: https://wiki.osmfoundation.org/wiki/Terms_of_Use Privacy: https://osmfoundation.org/wiki/Privacy_Policy
+
 == Frequently Asked Questions ==
 
 = What happens to my contacts if I delete the plugin? =

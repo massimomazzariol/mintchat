@@ -30,6 +30,7 @@ require_once __DIR__ . '/includes/abilities.php';
 require_once __DIR__ . '/includes/modal.php';
 
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
+add_action( 'admin_init', __NAMESPACE__ . '\\privacy_policy_content' );
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\editor_data' );
 
 /** Register the dynamic blocks and their local assets. */
@@ -64,5 +65,18 @@ function editor_data() {
 		'mintchat-chat-button-editor-script',
 		'window.mintchatEditorData = ' . wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) . ';',
 		'before'
+	);
+}
+
+/** Suggested text for the site's privacy policy (Settings > Privacy). */
+function privacy_policy_content() {
+	wp_add_privacy_policy_content(
+		'Mintchat',
+		wp_kses_post(
+			wpautop(
+				__( 'The WhatsApp buttons on this site are plain links: nothing is loaded or stored in your browser until you click one. Clicking opens WhatsApp (wa.me) with our number and, where set, a pre-filled message; from there the WhatsApp terms and privacy policy apply.', 'mintchat' ) . "\n\n" .
+				__( 'If the contact window shows a map, the map is loaded from OpenStreetMap only when you open the window, which sends your IP address to OpenStreetMap (https://osmfoundation.org/wiki/Privacy_Policy).', 'mintchat' )
+			)
+		)
 	);
 }
