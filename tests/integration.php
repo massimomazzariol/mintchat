@@ -387,6 +387,22 @@ try {
 		add_filter( 'mintchat_message', $filter );
 		$mintchat_assert( 'https://wa.me/393330000000?text=Filtered%3A%20Hi' === \Mintchat\message_url( '393330000000', 'Hi' ), 'The mintchat_message filter can change the pre-filled message' );
 		remove_filter( 'mintchat_message', $filter );
+		// A translation plugin offering languages gets the per-language default messages on save.
+		$languages = static fn() => array( 'it_IT' => array( 'name' => 'Italiano', 'flag' => '', 'prefix' => 'it' ) );
+		$handed    = array();
+		$receiver  = static function ( $source, $locale, $text ) use ( &$handed ) {
+			$handed[] = array( $source, $locale, $text );
+		};
+		add_filter( 'langsail_languages', $languages );
+		add_action( 'langsail_set_translation', $receiver, 10, 3 );
+		ob_start();
+		\Mintchat\settings_row( 'new-0', array( 'label' => 'A', 'number' => '', 'default_message' => 'Hello' ), '' );
+		$row_html = ob_get_clean();
+		\Mintchat\sanitize_settings( array( 'recipients' => array( 'new-0' => array( 'label' => 'Desk', 'number' => '+39 333 000 0000', 'default_message' => 'Hello', 'translations' => array( 'it_IT' => 'Ciao <b>!</b>' ) ) ) ) );
+		remove_filter( 'langsail_languages', $languages );
+		remove_action( 'langsail_set_translation', $receiver, 10 );
+		$mintchat_assert( str_contains( $row_html, '[translations][it_IT]' ) && str_contains( $row_html, 'Italiano' ), 'Each site language gets a default message field' );
+		$mintchat_assert( array( array( 'Hello', 'it_IT', 'Ciao !' ) ) === $handed, 'Per-language messages are sanitized and handed to the translation plugin' );
 		$empty = \Mintchat\sanitize_settings( array( 'recipients' => array( '_empty' => '1' ) ) );
 		update_option( 'mintchat_settings', $empty );
 		$mintchat_assert( '' === $empty['default_recipient_id'] && '' === $mintchat_render( array() ), 'Removing all recipients clears default and hides CTA' );

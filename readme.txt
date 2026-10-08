@@ -97,6 +97,7 @@ The Mintchat settings and the per-page messages. The content of your posts is le
 
 = 1.2.0 =
 * New mintchat_message filter: translation plugins and sites can change the pre-filled message (e.g. into the page language).
+* With LangSail, one default message field per site language in Settings > Mintchat.
 
 = 1.1.0 =
 * Optional contact modal with the Modal Trigger block: WhatsApp button, email, phone, address and an OpenStreetMap map, settings in Settings > Mintchat.

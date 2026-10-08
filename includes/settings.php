@@ -40,8 +40,9 @@ function sanitize_settings( $input ) {
 		'recipients'           => array(),
 		'default_recipient_id' => '',
 	);
-	$map    = array();
-	$seen   = array();
+	$map          = array();
+	$seen         = array();
+	$translations = array(); // array( message, locale, translation ), handed over once the input is valid.
 	foreach ( $input['recipients'] as $key => $row ) {
 		// The empty sentinel allows an intentionally empty list to be submitted.
 		if ( '_empty' === $key ) {
@@ -85,10 +86,20 @@ function sanitize_settings( $input ) {
 			'number'          => $number,
 			'default_message' => isset( $row['default_message'] ) && is_string( $row['default_message'] ) ? sanitize_textarea_field( $row['default_message'] ) : '',
 		);
+		$message                = end( $result['recipients'] )['default_message'];
+		foreach ( (array) ( $row['translations'] ?? array() ) as $locale => $text ) {
+			if ( '' !== $message && is_string( $locale ) && is_string( $text ) ) {
+				$translations[] = array( $message, $locale, sanitize_textarea_field( $text ) );
+			}
+		}
 	}
 	$default                        = isset( $input['default_recipient_id'] ) && is_string( $input['default_recipient_id'] ) ? $input['default_recipient_id'] : '';
 	$result['default_recipient_id'] = $map[ $default ] ?? ( $result['recipients'][0]['id'] ?? '' );
 	$result['modal']                = normalize_modal( $input['modal'] ?? array(), $map );
+	// Translations of the default messages belong to the translation plugin (LangSail): hand them over.
+	foreach ( $translations as $translation ) {
+		do_action( 'langsail_set_translation', $translation[0], $translation[1], $translation[2] );
+	}
 	return $result;
 }
 
@@ -105,6 +116,7 @@ function settings_menu() {
 function settings_assets( $hook ) {
 	if ( 'settings_page_mintchat' === $hook ) {
 		wp_enqueue_script( 'mintchat-settings', plugins_url( '../assets/settings.js', __FILE__ ), array(), VERSION, true );
+		wp_enqueue_style( 'mintchat-settings', plugins_url( '../assets/settings.css', __FILE__ ), array(), VERSION );
 	}
 }
 
@@ -120,7 +132,24 @@ function settings_row( $key, $row, $default_id ) {
 	<tr>
 		<td><label><span class="screen-reader-text"><?php esc_html_e( 'Recipient name', 'mintchat' ); ?></span><input type="text" name="mintchat_settings[recipients][<?php echo esc_attr( $key ); ?>][label]" value="<?php echo esc_attr( $row['label'] ); ?>" required></label></td>
 		<td><label><span class="screen-reader-text"><?php esc_html_e( 'International number', 'mintchat' ); ?></span><input type="tel" name="mintchat_settings[recipients][<?php echo esc_attr( $key ); ?>][number]" value="<?php echo esc_attr( '' === $row['number'] ? '' : '+' . $row['number'] ); ?>" aria-describedby="mintchat-number-help" required></label></td>
-		<td><label><span class="screen-reader-text"><?php esc_html_e( 'Default message', 'mintchat' ); ?></span><textarea name="mintchat_settings[recipients][<?php echo esc_attr( $key ); ?>][default_message]" rows="2"><?php echo esc_textarea( $row['default_message'] ?? '' ); ?></textarea></label></td>
+		<td>
+			<label><span class="screen-reader-text"><?php esc_html_e( 'Default message', 'mintchat' ); ?></span><textarea name="mintchat_settings[recipients][<?php echo esc_attr( $key ); ?>][default_message]" rows="2"><?php echo esc_textarea( $row['default_message'] ?? '' ); ?></textarea></label>
+			<?php
+			// One field per site language when a translation plugin offers them (LangSail filters).
+			foreach ( apply_filters( 'langsail_languages', array() ) as $locale => $language ) :
+				$translation = '' === ( $row['default_message'] ?? '' ) ? '' : apply_filters( 'langsail_get_translation', '', $row['default_message'], $locale );
+				?>
+				<label class="mintchat-translation">
+					<span>
+						<?php if ( ! empty( $language['flag'] ) ) : ?>
+							<img src="<?php echo esc_url( $language['flag'] ); ?>" alt="" width="16" height="16">
+						<?php endif; ?>
+						<?php echo esc_html( $language['name'] ); ?>
+					</span>
+					<textarea name="mintchat_settings[recipients][<?php echo esc_attr( $key ); ?>][translations][<?php echo esc_attr( $locale ); ?>]" rows="2" lang="<?php echo esc_attr( $language['prefix'] ?? '' ); ?>"><?php echo esc_textarea( $translation ); ?></textarea>
+				</label>
+			<?php endforeach; ?>
+		</td>
 		<td><label><input type="radio" name="mintchat_settings[default_recipient_id]" value="<?php echo esc_attr( $key ); ?>" <?php checked( $key, $default_id ); ?>><?php esc_html_e( 'Default', 'mintchat' ); ?></label></td>
 		<td><button type="button" class="button mintchat-remove"><?php esc_html_e( 'Remove recipient', 'mintchat' ); ?></button></td>
 	</tr>

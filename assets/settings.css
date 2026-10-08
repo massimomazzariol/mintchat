@@ -1,0 +1,15 @@
+/*
+ * Per-language default messages, shown when a translation plugin
+ * such as LangSail is active.
+ */
+.mintchat-translation {
+	display: block;
+	margin-top: 0.5em;
+}
+
+.mintchat-translation span {
+	display: flex;
+	align-items: center;
+	gap: 0.35em;
+	font-size: 0.9em;
+}

@@ -2,6 +2,7 @@
 
 ## 1.2.0
 
+- With a translation plugin offering site languages (LangSail filters), Settings > Mintchat shows a default message field per language, with its flag; the translations are saved in that plugin.
 - New `mintchat_message` filter on the pre-filled WhatsApp message, for translation plugins (LangSail) and site customizations.
 
 ## 1.1.0
